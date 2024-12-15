@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class TVSeriesScreen extends StatefulWidget {
+  const TVSeriesScreen({super.key});
+
   @override
   _TVSeriesScreenState createState() => _TVSeriesScreenState();
 }

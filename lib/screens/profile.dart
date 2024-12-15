@@ -1,189 +1,248 @@
-import 'package:WatchMate/screens/watchmateDashboard.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:WatchMate/ignore/profile.dart';
+import 'package:WatchMate/widgets/bottomNavBar.dart';
 import 'package:flutter/material.dart';
 
-class Profile extends StatefulWidget {
-  // final String user;
-  // const Profile(User? currentUser, {super.key, required this.user});
-
+class ProfilePage extends StatefulWidget {
   @override
-  ProfileState createState() => ProfileState();
+  _ProfilePageState createState() => _ProfilePageState();
 }
 
-class ProfileState extends State<Profile> {
-  final _formKey = GlobalKey<FormState>();
-  TextEditingController nameCtrl = TextEditingController();
-  TextEditingController emailCtrl = TextEditingController();
-  TextEditingController bioCtrl = TextEditingController();
-  DateTime? dateSelected;
-  String _selectedGender = 'Male';
-  List<String> Lgenres = [];
-  TextEditingController genreCtrl = TextEditingController();
+class _ProfilePageState extends State<ProfilePage> {
+  int selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    // emailCtrl.text = widget.user;
-  }
+  final List<String> tabs = ['Favorites', 'Ratings', 'Reviews'];
+  final List<String> Movies = [
+    'mad_max.jpg',
+    'redone.jpg',
+    'Venom.jpg',
+    'Dune.jpg',
+    'Secret Level.jpg'
+  ];
 
-  Future<void> dateSelect(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && picked != dateSelected) {
-      setState(() {
-        dateSelected = picked;
-      });
-    }
-  }
-
-  void genreAdd() {
-    if (genreCtrl.text.isNotEmpty) {
-      setState(() {
-        Lgenres.add(genreCtrl.text);
-        genreCtrl.clear();
-      });
-    }
-  }
+  final List<String> Movietitle = [
+    'Mad Max',
+    'Red One',
+    'Venom',
+    'Dune',
+    'Secret Level'
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Profile'),
-        backgroundColor: Colors.blue,
+        leading: BackButton(),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: nameCtrl,
-                decoration: InputDecoration(
-                    labelText: 'Name',
-                    labelStyle: TextStyle(color: Colors.blue)),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: emailCtrl,
-                decoration: InputDecoration(
-                    labelText: 'Email Address',
-                    labelStyle: TextStyle(color: Colors.blue)),
-                enabled: false,
-              ),
-              DropdownButtonFormField<String>(
-                value: _selectedGender,
-                decoration: InputDecoration(
-                    labelText: 'Gender/Sex',
-                    labelStyle: TextStyle(color: Colors.blue)),
-                items: ['Male', 'Female', 'Nonbinary', 'LGBTQ+'].map((gender) {
-                  return DropdownMenuItem<String>(
-                    value: gender,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Profile Cover Section
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/cover.jpg'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.48),
+                  ), // Dark overlay
+                ),
+                // Profile Photo and Info
+                Positioned(
+                  bottom: 15,
+                  left: 20,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: AssetImage('assets/lord.jpg'),
+                      ),
+                      SizedBox(width: 15),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Lelouch Granduer",
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: const Color.fromARGB(255, 255, 255, 255),
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(
+                                    0.0,
+                                    1.5,
+                                  ), // Horizontal and vertical offset
+                                  blurRadius: 1.0, // Blur radius
+                                  color: Colors.black,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            "@lelouche369",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontStyle: FontStyle.italic,
+                              color: const Color.fromARGB(255, 255, 255, 255),
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(
+                                    0.0,
+                                    1.5,
+                                  ), // Horizontal and vertical offset
+                                  blurRadius: 1.0, // Blur radius
+                                  color: Colors.black,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // Edit Profile Button
+                Positioned(
+                  bottom: 10,
+                  right: 20,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black.withOpacity(0.3),
+                      side: BorderSide(color: Colors.white),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      fixedSize: Size(114, 25),
+                    ),
+                    onPressed: () {
+                      // Handle Edit Profile Action
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Profile()));
+                    },
                     child: Text(
-                      gender,
-                      style: TextStyle(color: Colors.blue),
+                      "Edit Profile",
+                      style: TextStyle(fontSize: 13),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // SizedBox(height: 60), // Space for profile photo
+            // Tabs Section
+            Container(
+              color: Colors.black,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(tabs.length, (index) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = index;
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: selectedIndex == index
+                                ? Colors.blue
+                                : Colors.transparent,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        tabs[index],
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: selectedIndex == index
+                              ? Colors.blue
+                              : Colors.grey.shade400,
+                        ),
+                      ),
                     ),
                   );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedGender = newValue!;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select your gender';
-                  }
-                  return null;
-                },
+                }),
               ),
-              ListTile(
-                title: Text(
-                  dateSelected == null
-                      ? 'Select Date of Birth'
-                      : '${dateSelected?.toLocal()}'.split(' ')[0],
-                  style: TextStyle(color: Colors.blue),
-                ),
-                trailing: Icon(Icons.calendar_today),
-                onTap: () => dateSelect(context),
+            ),
+            // Content Section
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 0),
+              child: Text(
+                'Movies',
+                style: TextStyle(fontSize: 18),
               ),
-              TextFormField(
-                controller: bioCtrl,
-                decoration: InputDecoration(
-                    labelText: 'Bio',
-                    labelStyle: TextStyle(color: Colors.blue)),
-                maxLines: 4,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your bio';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: genreCtrl,
-                decoration: InputDecoration(
-                    labelText: 'Genre',
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: genreAdd,
+            ),
+            SizedBox(
+              height: 250,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                itemCount: Movies.length, // Sample item count
+                itemBuilder: (context, index) {
+                  return Card(
+                    margin: EdgeInsets.only(right: 10),
+                    child: Container(
+                      width: 150, // Fixed width
+                      height: 200, // Fixed height
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade800,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Image Section
+                          Container(
+                            height: 180, // Fixed height for the image
+                            width: double.infinity, // Full width for the card
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: AssetImage('assets/${Movies[index]}'),
+                                fit: BoxFit.cover,
+                              ),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(10),
+                                topRight: Radius.circular(10),
+                              ),
+                            ),
+                          ),
+                          // Text Section
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              Movietitle[index],
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    labelStyle: TextStyle(color: Colors.blue)),
-              ),
-              SizedBox(height: 10),
-              Wrap(
-                spacing: 8.0,
-                runSpacing: 4.0,
-                children: Lgenres.map((genre) => Chip(
-                      label: Text(genre),
-                      onDeleted: () {
-                        setState(() {
-                          Lgenres.remove(genre);
-                        });
-                      },
-                    )).toList(),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    // Save the profile data
-                    print('Name: ${nameCtrl.text}');
-                    print('Email: ${emailCtrl.text}');
-                    print('Gender: $_selectedGender');
-                    print('Date of Birth: $dateSelected');
-                    print('Bio: ${bioCtrl.text}');
-                    print('Genres: $Lgenres');
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => watchMateDashboard()));
-                  }
+                  );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                ),
-                child: Text(
-                  'Save Profile',
-                  style: TextStyle(color: Colors.white),
-                ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+      bottomNavigationBar: BottomNavBar(navx: 3),
     );
   }
 }

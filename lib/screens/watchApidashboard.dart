@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:WatchMate/screens/mediagpt.dart';
+import 'package:WatchMate/widgets/bottomNavBar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -60,60 +62,33 @@ class _DashboardState extends State<dashboardMate> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'WatchMate',
-      theme: ThemeData.dark(),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('WatchMate'),
-              IconButton(
-                icon: Icon(Icons.search),
-                onPressed: () {
-                  // Search functionality can be added here
-                },
-              ),
-            ],
-          ),
-        ),
-        body: isLoading
-            ? Center(child: CircularProgressIndicator())
-            : ListView(
-                children: categorizedData.entries.map((entry) {
-                  final genre = entry.key;
-                  final movies = entry.value;
-
-                  return buildGenreSection(genre, movies);
-                }).toList(),
-              ),
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.favorite),
-              label: 'Match',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.message),
-              label: 'Messages',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('WatchMate'),
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {
+                // Search functionality can be added here
+              },
             ),
           ],
-          currentIndex: 0,
-          onTap: (index) {
-            // Handle navigation
-          },
         ),
+      ),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : ListView(
+              children: categorizedData.entries.map((entry) {
+                final genre = entry.key;
+                final movies = entry.value;
+
+                return buildGenreSection(genre, movies);
+              }).toList(),
+            ),
+      bottomNavigationBar: BottomNavBar(
+        navx: 0,
       ),
     );
   }
@@ -136,7 +111,18 @@ class _DashboardState extends State<dashboardMate> {
             itemCount: movies.length,
             itemBuilder: (context, index) {
               final movie = movies[index];
-              return buildMovieCard(movie);
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MovieDetailPage(
+                          movie: movie,
+                        ),
+                      ));
+                },
+                child: buildMovieCard(movie),
+              );
             },
           ),
         ),

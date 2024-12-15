@@ -1,8 +1,6 @@
-import 'package:WatchMate/screens/dashboard.dart';
 import 'package:WatchMate/screens/watchApidashboard.dart';
 import 'package:WatchMate/utils/validators.dart';
 import 'package:flutter/material.dart';
-import './watchmateDashboard.dart';
 import '../utils/auth.dart';
 import '../widgets/textFormField.dart';
 

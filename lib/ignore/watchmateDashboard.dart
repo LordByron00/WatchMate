@@ -1,6 +1,4 @@
-import 'package:WatchMate/screens/profile.dart';
 import 'package:WatchMate/screens/settings.dart';
-import 'package:WatchMate/utils/auth.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(watchMateDashboard());

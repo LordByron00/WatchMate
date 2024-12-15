@@ -9,14 +9,14 @@ class Textformfield extends StatefulWidget {
   final TextInputType keyboardType;
 
   const Textformfield({
-    Key? key,
+    super.key,
     required this.label,
     this.hint,
     this.isPass = false,
     required this.controller,
     this.validator,
     this.keyboardType = TextInputType.text,
-  }) : super(key: key);
+  });
 
   @override
   State<Textformfield> createState() => _TextformfieldState();

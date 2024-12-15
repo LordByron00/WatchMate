@@ -1,5 +1,7 @@
 import 'package:WatchMate/screens/Home.dart';
-import 'package:WatchMate/screens/profile.dart';
+import 'package:WatchMate/ignore/profile.dart';
+import 'package:WatchMate/screens/darkmode.dart';
+import 'package:WatchMate/widgets/bottomNavBar.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -7,6 +9,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,6 +20,8 @@ class MyApp extends StatelessWidget {
 }
 
 class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,6 +37,7 @@ class SettingsPage extends StatelessWidget {
             title: Text('Settings'),
             onTap: () {
               // Navigate to settings page (if implemented)
+              // Navigator.push(context, MaterialPageRoute(builder: (context) => ))
             },
           ),
           ListTile(
@@ -40,6 +47,15 @@ class SettingsPage extends StatelessWidget {
               Navigator.pushReplacement(
                   context, MaterialPageRoute(builder: (context) => Profile()));
               // Navigate to profile page (if implemented)
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.settings),
+            title: Text('Dark Mode'),
+            onTap: () {
+              // Navigate to settings page (if implemented)
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => Darkmode()));
             },
           ),
           ListTile(
@@ -81,6 +97,7 @@ class SettingsPage extends StatelessWidget {
           ),
         ],
       ),
+      bottomNavigationBar: BottomNavBar(navx: 3),
     );
   }
 }
