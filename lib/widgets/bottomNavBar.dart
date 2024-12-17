@@ -60,8 +60,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => MatchMate()));
           case 2:
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => Chat()));
+          // Navigator.push(
+          //     context, MaterialPageRoute(builder: (context) => Chat()));
           case 3:
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => ProfilePage()));

@@ -7,6 +7,8 @@ class Textformfield extends StatefulWidget {
   final TextEditingController controller;
   final String? Function(String?)? validator;
   final TextInputType keyboardType;
+  final String? errorText;
+  final ValueChanged<String>? onchange;
 
   const Textformfield({
     super.key,
@@ -16,6 +18,8 @@ class Textformfield extends StatefulWidget {
     required this.controller,
     this.validator,
     this.keyboardType = TextInputType.text,
+    this.errorText,
+    this.onchange,
   });
 
   @override
@@ -24,23 +28,6 @@ class Textformfield extends StatefulWidget {
 
 class _TextformfieldState extends State<Textformfield> {
   bool _obscureText = true;
-  // final String label;
-  // final String? hint;
-  // final bool isPass;
-  // final TextEditingController controller;
-  // final String? Function(String?)? validator;
-  // final TextInputType keyboardType;
-  // bool _isPass = true;
-
-  // const Textformfield({
-  //   Key? key,
-  //   required this.label,
-  //   this.hint,
-  //   this.isPass = false,
-  //   required this.controller,
-  //   this.validator,
-  //   this.keyboardType = TextInputType.text,
-  // }) : super(key: key);
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -55,10 +42,12 @@ class _TextformfieldState extends State<Textformfield> {
       obscureText: widget.isPass ? _obscureText : widget.isPass,
       validator: widget.validator,
       keyboardType: widget.keyboardType,
+      onChanged: widget.onchange,
       decoration: InputDecoration(
         labelText: widget.label,
         hintText: widget.hint,
         border: OutlineInputBorder(),
+        errorText: widget.errorText,
         suffixIcon: widget.isPass
             ? IconButton(
                 icon: Icon(

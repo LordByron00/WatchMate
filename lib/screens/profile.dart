@@ -1,4 +1,6 @@
 import 'package:WatchMate/ignore/profile.dart';
+import 'package:WatchMate/screens/settings.dart';
+import 'package:WatchMate/utils/auth.dart';
 import 'package:WatchMate/widgets/bottomNavBar.dart';
 import 'package:flutter/material.dart';
 
@@ -71,7 +73,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Lelouch Granduer",
+                            Auth().curUserData != null
+                                ? Auth().curUserData!.name
+                                : 'User not found',
                             style: TextStyle(
                               fontSize: 20,
                               color: const Color.fromARGB(255, 255, 255, 255),
@@ -89,9 +93,11 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           Text(
-                            "@lelouche369",
+                            Auth().curUserData != null
+                                ? '@${Auth().curUserData!.username}'
+                                : 'UserName not found',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 14,
                               fontStyle: FontStyle.italic,
                               color: const Color.fromARGB(255, 255, 255, 255),
                               shadows: [
@@ -126,8 +132,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     onPressed: () {
                       // Handle Edit Profile Action
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => Profile()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            // builder: (context) => Profile(),
+                            builder: (context) => SettingsPage(),
+                          ));
                     },
                     child: Text(
                       "Edit Profile",

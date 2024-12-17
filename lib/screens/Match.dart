@@ -1,7 +1,9 @@
 import 'dart:ui';
 
 import 'package:WatchMate/screens/Chat.dart';
+import 'package:WatchMate/services/getAuthUID.dart';
 import 'package:WatchMate/widgets/bottomNavBar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class MatchMate extends StatefulWidget {
@@ -12,6 +14,9 @@ class MatchMate extends StatefulWidget {
 }
 
 class _MatchMateState extends State<MatchMate> {
+  final UserService _userService = UserService();
+  List<Map<String, dynamic>> users = [];
+
   int currentView = 0; // 0: Favorites, 1: Ratings, 2: Reviews
 
   // Dummy data
@@ -46,6 +51,47 @@ class _MatchMateState extends State<MatchMate> {
         return favorites;
     }
   }
+
+  Future<void> _loadUsers() async {
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('users').get();
+    setState(() {
+      users = snapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+    });
+  }
+
+  void removeFirstUser() {
+    setState(() {
+      if (users.isNotEmpty) {
+        print(users[0]);
+        users.removeAt(0);
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsers();
+  }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(title: Text('User List')),
+  //     body: ListView.builder(
+  //       itemCount: users.length,
+  //       itemBuilder: (context, index) {
+  //         print(users[index]);
+  //         return ListTile(
+  //           title: Text(users[index]['email'] ?? 'No email'),
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
 
   Widget buildMovie(int index) {
     return Card(
@@ -265,7 +311,10 @@ class _MatchMateState extends State<MatchMate> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Hanni Pham",
+                              Text(
+                                  users.isNotEmpty
+                                      ? users[0]['name']
+                                      : 'user not found',
                                   style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -297,7 +346,9 @@ class _MatchMateState extends State<MatchMate> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  removeFirstUser();
+                                },
                                 child: Icon(Icons.cancel_sharp)),
                             ElevatedButton(
                                 onPressed: () {},
@@ -307,7 +358,9 @@ class _MatchMateState extends State<MatchMate> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => Chat()));
+                                          builder: (context) => Chat(
+                                                user: users[0],
+                                              )));
                                 },
                                 child: Icon(Icons.send)),
                           ],

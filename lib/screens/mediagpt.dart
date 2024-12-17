@@ -106,6 +106,10 @@ class MovieDetailPage extends StatelessWidget {
                           children: [
                             ElevatedButton.icon(
                               onPressed: () {
+                                await _firebaseFirestore
+            .collection('users')
+            .doc(user.uid)
+            .set(userData);
                                 print('Add to Watchlist');
                               },
                               icon: Icon(Icons.add),

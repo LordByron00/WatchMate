@@ -66,8 +66,8 @@ class _WatchMateState extends State<WatchMate> {
         fontFamily: 'Arial',
       ),
       themeMode: themeProvider._themeMode,
-      // home: AuthPage(),
-      home: dashboardMate(),
+      home: AuthPage(),
+      // home: dashboardMate(),
     );
   }
 }
