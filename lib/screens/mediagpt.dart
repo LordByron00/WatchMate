@@ -1,8 +1,9 @@
+import 'package:WatchMate/services/userPreference.dart';
 import 'package:WatchMate/widgets/bottomNavBar.dart';
 import 'package:flutter/material.dart';
 
 class MovieDetailPage extends StatelessWidget {
-  final dynamic movie;
+  final Map<String, dynamic> movie;
   const MovieDetailPage({super.key, required this.movie});
 
   @override
@@ -106,10 +107,7 @@ class MovieDetailPage extends StatelessWidget {
                           children: [
                             ElevatedButton.icon(
                               onPressed: () {
-                                await _firebaseFirestore
-            .collection('users')
-            .doc(user.uid)
-            .set(userData);
+                                PreferenceService().addFavorite(movie);
                                 print('Add to Watchlist');
                               },
                               icon: Icon(Icons.add),
@@ -121,12 +119,26 @@ class MovieDetailPage extends StatelessWidget {
                             ),
                             ElevatedButton(
                               onPressed: () {
+                                int rating = 4;
+                                Map<String, dynamic> movieRating = {
+                                  ...movie,
+                                  'rating': rating,
+                                };
+                                PreferenceService().addRating(movieRating);
                                 print('Rate');
                               },
                               child: Text('Rate'),
                             ),
                             ElevatedButton(
                               onPressed: () {
+                                String reviewContent = 'I love it';
+                                double rating = 4;
+                                Map<String, dynamic> movieReview = {
+                                  ...movie,
+                                  'review': reviewContent,
+                                  'rating': rating,
+                                };
+                                PreferenceService().addReview(movieReview);
                                 print('Review');
                               },
                               child: Text('Review'),

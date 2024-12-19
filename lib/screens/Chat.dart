@@ -1,4 +1,5 @@
 import 'package:WatchMate/services/conversationService.dart';
+import 'package:WatchMate/services/getAuthUID.dart';
 import 'package:WatchMate/services/sendMessage.dart';
 import 'package:WatchMate/utils/auth.dart';
 import 'package:WatchMate/widgets/bottomNavBar.dart';
@@ -17,13 +18,54 @@ class Chat extends StatefulWidget {
 
 class _ChatScreenState extends State<Chat> {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final UserService userService = UserService();
+
   // Initialize with an empty stream
   String? convoID;
+  String? receiverImgUrl;
+  String? senderImgUrl;
 
   @override
   void initState() {
     super.initState();
     createConvo();
+    SetMatchDP(widget.user['username']);
+    SetMatchDP(Auth().curUserData?.uid);
+  }
+
+  Future<String?> getUID(username) async {
+    String? x = await userService.getUserIdFromUsername(username);
+    return x;
+  }
+
+  Future<void> SetMatchDP(username) async {
+    bool sender = true;
+    String? fbid;
+
+    if (username != Auth().curUserData?.uid) {
+      fbid = await getUID(username);
+      sender = false;
+    } else {
+      fbid = username;
+    }
+
+    Map<String, dynamic>? response = await userService.fetchDPbyID(fbid);
+
+    if (response != null) {
+      setState(() {
+        sender
+            ? senderImgUrl = response['file_url']
+            : receiverImgUrl = response['file_url'];
+      });
+      // Handle the retrieved data
+      print('ID: ${response['fbid']}');
+      print('Name: ${response['name']}');
+      print('file_url: ${response['file_url']}');
+    } else {
+      setState(() {
+        sender ? senderImgUrl = 'not found' : receiverImgUrl = 'not found';
+      });
+    }
   }
 
   Future<void> createConvo() async {
@@ -31,9 +73,6 @@ class _ChatScreenState extends State<Chat> {
         await ConversationService().createConversation(widget.user['username']);
     setState(() {});
   }
-
-  // List of messages
-  // final List<Map<String, dynamic>> messages = [];
 
   // Text editing controller for the input field
   final TextEditingController _controller = TextEditingController();
@@ -67,7 +106,9 @@ class _ChatScreenState extends State<Chat> {
         children: [
           // Show loading until yID is set
           Expanded(
-            child: (convoID == null)
+            child: (convoID == null ||
+                    receiverImgUrl == null ||
+                    senderImgUrl == null)
                 ? Center(child: CircularProgressIndicator())
                 : StreamBuilder<QuerySnapshot>(
                     stream: _db
@@ -101,6 +142,8 @@ class _ChatScreenState extends State<Chat> {
                           return MessageBubble(
                             text: messageData['message'] ?? '',
                             isSender: isSender,
+                            dp: receiverImgUrl,
+                            senderImg: senderImgUrl,
                           );
                         },
                       );
@@ -145,10 +188,15 @@ class _ChatScreenState extends State<Chat> {
 class MessageBubble extends StatelessWidget {
   final String text;
   final bool isSender;
+  final String? dp;
+  final String? senderImg;
 
   const MessageBubble({
+    super.key,
     required this.text,
     required this.isSender,
+    required this.dp,
+    required this.senderImg,
   });
 
   @override
@@ -162,7 +210,7 @@ class MessageBubble extends StatelessWidget {
           if (!isSender)
             CircleAvatar(
               radius: 15,
-              backgroundImage: AssetImage('assets/hanni.jpg'),
+              backgroundImage: NetworkImage(dp!),
             ),
           if (!isSender) SizedBox(width: 10),
           Container(
@@ -182,7 +230,7 @@ class MessageBubble extends StatelessWidget {
           if (isSender)
             CircleAvatar(
               radius: 15,
-              backgroundImage: AssetImage('assets/lord.jpg'),
+              backgroundImage: NetworkImage(senderImg!),
             ),
         ],
       ),

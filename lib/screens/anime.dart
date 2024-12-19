@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class AnimeListScreen extends StatefulWidget {
+  const AnimeListScreen({super.key});
+
   @override
   _AnimeListScreenState createState() => _AnimeListScreenState();
 }

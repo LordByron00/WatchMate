@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -22,5 +23,25 @@ class UserService {
       print('Error fetching user ID: $e');
       return null;
     }
+  }
+
+  Future<Map<String, dynamic>?> fetchDPbyID(uid) async {
+    try {
+      // Query the 'images' table for a single row where name matches
+      final response = await Supabase.instance.client
+          .from('images')
+          .select()
+          .eq('fbid', uid)
+          .order('uploaded_at', ascending: false)
+          .limit(1) // Filter rows where name = 'something'
+          .maybeSingle();
+
+      return response;
+
+      // Fetch at most one row, or null if none found
+    } catch (e) {
+      print('Unexpected error: $e');
+    }
+    return null;
   }
 }

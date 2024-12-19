@@ -31,7 +31,7 @@ class ConversationService {
   // Get a conversation ID for two users (sender and receiver)
   Future<String?> getConversationId(String? receiverID) async {
     // Validate inputs
-    if (senderID == null || receiverID == null) {
+    if (receiverID == null) {
       throw ArgumentError('SenderID and ReceiverID cannot be null');
     }
 

@@ -1,19 +1,31 @@
 import 'package:WatchMate/screens/Home.dart';
-import 'package:WatchMate/screens/Match.dart';
-import 'package:WatchMate/screens/watchApidashboard.dart';
-import 'package:WatchMate/utils/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+const supabaseUrl = 'https://nbaudhxcllzyvwnhrfbe.supabase.co';
+// const supabaseKey = String.fromEnvironment('SUPABASE_KEY');
+const supabaseKey =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5iYXVkaHhjbGx6eXZ3bmhyZmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ0NjczMTgsImV4cCI6MjA1MDA0MzMxOH0.qbojdxA8j-7IzeENXfBxGV5Es7glfWSLcIozb3riNko';
 
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
     print('Firebase initialized successfully');
+
+    // Initialize Supabase
+    await Supabase.initialize(
+      url: supabaseUrl,
+      anonKey: supabaseKey,
+    );
+
+    print('Supabase initialized successfully');
   } catch (e) {
     print('Error initializing Firebase: $e');
   }
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
@@ -54,7 +66,7 @@ class _WatchMateState extends State<WatchMate> {
             backgroundColor: const Color.fromARGB(255, 24, 36, 37)),
         appBarTheme: AppBarTheme(
           foregroundColor: Colors.white,
-          backgroundColor: const Color.fromARGB(255, 24, 36, 37),
+          backgroundColor: const Color.fromARGB(255, 31, 60, 63),
         ),
         brightness: Brightness.light,
         primarySwatch: Colors.blue,

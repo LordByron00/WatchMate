@@ -1,5 +1,5 @@
 import 'package:WatchMate/screens/Home.dart';
-import 'package:WatchMate/ignore/profile.dart';
+import 'package:WatchMate/screens/profileDetails.dart';
 import 'package:WatchMate/screens/darkmode.dart';
 import 'package:WatchMate/widgets/bottomNavBar.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +42,7 @@ class SettingsPage extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.person),
-            title: Text('Profile'),
+            title: Text('Personal Details'),
             onTap: () {
               Navigator.pushReplacement(
                   context, MaterialPageRoute(builder: (context) => Profile()));

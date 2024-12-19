@@ -49,6 +49,10 @@ dependencies:
   fluttertoast: ^8.2.10
   flutter_native_splash: ^2.4.3
   image_picker: ^1.1.2
+  supabase_flutter: ^2.0.0  # Add the latest version
+  shared_preferences: ^2.2.2 # Latest version
+
+
 
 dev_dependencies:
   flutter_test:

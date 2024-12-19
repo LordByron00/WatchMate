@@ -29,7 +29,10 @@ class Auth {
   }) async {
     await _firebaseAuth.signInWithEmailAndPassword(
         email: email, password: password);
+    setUser();
+  }
 
+  void setUser() async {
     if (currentUser != null) {
       print(currentUser!.uid);
       DocumentSnapshot UserSnap = await getUser(currentUser!.uid);
@@ -52,14 +55,6 @@ class Auth {
   Future<DocumentSnapshot> getUser(String userId) async {
     return await _firebaseFirestore.collection('users').doc(userId).get();
   }
-
-  // Future<void> createUserWithEmailAndPassword({
-  //   required String email,
-  //   required String password,
-  // }) async {
-  //   await _firebaseAuth.createUserWithEmailAndPassword(
-  //       email: email, password: password);
-  // }
 
   Future<void> signOut() async {
     await _firebaseAuth.signOut();

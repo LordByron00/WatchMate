@@ -2,6 +2,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,6 +20,8 @@ class MyHomePage extends StatelessWidget {
 }
 
 class Header extends StatelessWidget {
+  const Header({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -29,6 +33,8 @@ class Header extends StatelessWidget {
 }
 
 class BodyContent extends StatelessWidget {
+  const BodyContent({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Center(child: Text('Body Section'));
@@ -36,6 +42,8 @@ class BodyContent extends StatelessWidget {
 }
 
 class Footer extends StatelessWidget {
+  const Footer({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(

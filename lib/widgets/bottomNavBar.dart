@@ -1,7 +1,6 @@
-import 'package:WatchMate/screens/Chat.dart';
 import 'package:WatchMate/screens/Match.dart';
+import 'package:WatchMate/screens/chatlist.dart';
 import 'package:WatchMate/screens/profile.dart';
-import 'package:WatchMate/screens/settings.dart';
 import 'package:WatchMate/screens/watchApidashboard.dart';
 import 'package:flutter/material.dart';
 
@@ -60,8 +59,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => MatchMate()));
           case 2:
-          // Navigator.push(
-          //     context, MaterialPageRoute(builder: (context) => Chat()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => ConversationsList()));
           case 3:
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => ProfilePage()));

@@ -19,15 +19,6 @@ class UserService {
     }
   }
 
-  // Add a user to the users collection
-  // Future<void> createUser(String userId, String name, String email) async {
-  //   await _db.collection('users').doc(userId).set({
-  //     'name': name,
-  //     'email': email,
-  //     'created_at': FieldValue.serverTimestamp(),
-  //   });
-  // }
-
   // Fetch a user's data
   Future<DocumentSnapshot> getUser(String userId) async {
     return await _db.collection('users').doc(userId).get();
