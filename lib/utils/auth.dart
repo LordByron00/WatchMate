@@ -32,17 +32,27 @@ class Auth {
     setUser();
   }
 
-  void setUser() async {
+  Future<void> setUser() async {
+    print('Seting User');
     if (currentUser != null) {
       print(currentUser!.uid);
+
       DocumentSnapshot UserSnap = await getUser(currentUser!.uid);
+
       Map<String, dynamic> userSnapData =
           UserSnap.data() as Map<String, dynamic>;
+
+      if (userSnapData.isEmpty) {
+        throw Exception("User data not found for UID: ${currentUser!.uid}");
+      }
+
       Map<String, dynamic> userData = {
         'uid': currentUser!.uid,
         ...userSnapData
       };
+
       print(userData);
+
       curUser = UserData.fromFirestore(userData);
       if (curUser != null) {
         print(curUserData!.name); // Now curUser is guaranteed to be non-null
@@ -53,6 +63,7 @@ class Auth {
   }
 
   Future<DocumentSnapshot> getUser(String userId) async {
+    print('Getting user');
     return await _firebaseFirestore.collection('users').doc(userId).get();
   }
 

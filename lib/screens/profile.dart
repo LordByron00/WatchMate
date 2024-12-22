@@ -32,8 +32,27 @@ class _ProfilePageState extends State<ProfilePage> {
   dynamic _imageUrl; // URL of the uploaded image
   final ImagePicker _picker = ImagePicker();
 
+  @override
+  void initState() {
+    super.initState();
+    // fetchDPbyID();
+    wait();
+  }
+
+  void wait() async {
+    try {
+      await Auth().setUser();
+      await fetchDPbyID(); // Ensures fetchDPbyID completes first
+      getFavorites(); // Waits for getFavorites
+      getRatings(); // Waits for getRatings
+      getReviews(); // Waits for getReviews
+    } catch (e) {
+      print('Error in initialization: $e'); // Handle any errors
+    }
+  }
+
   void getFavorites() async {
-    print('initCalled too');
+    print('getting favorites');
     QuerySnapshot favoriteSnapshot =
         await PreferenceService().getFavorites(Auth().curUserData?.uid);
     if (favoriteSnapshot.docs.isNotEmpty) {
@@ -49,7 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void getRatings() async {
-    print('rating');
+    print('getting Rating');
     QuerySnapshot favoriteSnapshot =
         await PreferenceService().getRatings(Auth().curUserData?.uid);
     if (favoriteSnapshot.docs.isNotEmpty) {
@@ -62,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void getReviews() async {
-    print('review');
+    print('getting review');
     QuerySnapshot favoriteSnapshot =
         await PreferenceService().getReviews(Auth().curUserData?.uid);
 
@@ -147,7 +166,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> fetchDPbyID() async {
-    print('initState called');
+    print('fetching DP by ID..');
     try {
       // Query the 'images' table for a single row where name matches
       final response = await Supabase.instance.client
@@ -209,25 +228,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    Auth().setUser();
-    // fetchDPbyID();
-    wait();
-  }
-
-  void wait() async {
-    try {
-      await fetchDPbyID(); // Ensures fetchDPbyID completes first
-      getFavorites(); // Waits for getFavorites
-      getRatings(); // Waits for getRatings
-      getReviews(); // Waits for getReviews
-    } catch (e) {
-      print('Error in initialization: $e'); // Handle any errors
-    }
-  }
-
   final List<String> tabs = ['Favorites', 'Ratings', 'Reviews'];
 
   @override
@@ -239,9 +239,9 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [SizedBox(width: 100), Text('Profile')],
         ),
       ),
-      endDrawer: Auth().curUserData == null ? null : AppDrawer(),
-      body: (favorite == null || _imageUrl == null) &&
-              Auth().curUserData == null
+      endDrawer:
+          Auth().curUserData == null && _imageUrl == null ? null : AppDrawer(),
+      body: (_imageUrl == null) && Auth().curUserData == null
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
@@ -275,7 +275,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             Stack(children: [
                               CircleAvatar(
                                 radius: 50,
-                                backgroundImage: NetworkImage(_imageUrl),
+                                backgroundImage:
+                                    NetworkImage(_imageUrl ?? 'no image'),
                               ),
                               Positioned(
                                   bottom: 3,
@@ -442,7 +443,7 @@ class _ProfilePageState extends State<ProfilePage> {
             accountName: Text('${Auth().curUserData!.name}'),
             accountEmail: Text('@${Auth().curUserData!.email}'),
             currentAccountPicture: CircleAvatar(
-              backgroundImage: NetworkImage(_imageUrl),
+              backgroundImage: NetworkImage(_imageUrl ?? 'no image'),
             ),
             decoration: BoxDecoration(
               color: Colors.blue,
@@ -522,101 +523,103 @@ class _ProfilePageState extends State<ProfilePage> {
 }
 
 Widget buildFavorite(favorite, selectedIndex) {
-  return SizedBox(
-    height: 270,
-    child: ListView.builder(
-      scrollDirection: Axis.horizontal,
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-      itemCount: favorite.length, // Sample item count
-      itemBuilder: (context, index) {
-        return InkWell(
-          onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MovieDetailPage(
-                    movie: favorite[index],
-                  ),
-                ));
-          },
-          child: Card(
-            margin: EdgeInsets.only(right: 10),
-            child: Container(
-              width: 150, // Fixed width
-              height: 270, // Fixed height
-              decoration: BoxDecoration(
-                color: Colors.grey.shade800,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Image Section
-                  Container(
-                    height: 180, // Fixed height for the image
-                    width: double.infinity, // Full width for the card
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        // image: AssetImage('assets/${Movies[index]}'),
-                        image: NetworkImage(
-                          'https://image.tmdb.org/t/p/w500${favorite[index]['poster_path']}',
+  return favorite != null
+      ? SizedBox(
+          height: 270,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            itemCount: favorite.length, // Sample item count
+            itemBuilder: (context, index) {
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MovieDetailPage(
+                          movie: favorite[index],
                         ),
-                        fit: BoxFit.cover,
-                      ),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                      ),
+                      ));
+                },
+                child: Card(
+                  margin: EdgeInsets.only(right: 10),
+                  child: Container(
+                    width: 150, // Fixed width
+                    height: 270, // Fixed height
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade800,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Image Section
+                        Container(
+                          height: 180, // Fixed height for the image
+                          width: double.infinity, // Full width for the card
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              // image: AssetImage('assets/${Movies[index]}'),
+                              image: NetworkImage(
+                                'https://image.tmdb.org/t/p/w500${favorite[index]['poster_path']}',
+                              ),
+                              fit: BoxFit.cover,
+                            ),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                            ),
+                          ),
+                        ),
+                        // Text Section
+
+                        switch (selectedIndex) {
+                          0 => Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Wrap(
+                                children: [
+                                  Text(
+                                    favorite[index]['title'] ?? 'No title',
+                                    textAlign: TextAlign.center,
+                                    softWrap: true,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                    // overflow: TextOverflow.ellipsis,
+                                    overflow: TextOverflow.clip,
+                                  ),
+                                ],
+                              )),
+                          1 => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(
+                                    favorite[index]['rating'], (starIndex) {
+                                  return Icon(Icons.star,
+                                      size: 16, color: Colors.amber);
+                                }),
+                              ),
+                            ),
+                          2 => Container(
+                              padding: EdgeInsets.all(10),
+                              child: Text(
+                                favorite[index]['review'],
+                                softWrap: true,
+                                overflow: TextOverflow.fade,
+                              ),
+                            ),
+                          _ => Container(), // Default case (optional)
+                        },
+                      ],
                     ),
                   ),
-                  // Text Section
-
-                  switch (selectedIndex) {
-                    0 => Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Wrap(
-                          children: [
-                            Text(
-                              favorite[index]['title'] ?? 'No title',
-                              textAlign: TextAlign.center,
-                              softWrap: true,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              // overflow: TextOverflow.ellipsis,
-                              overflow: TextOverflow.clip,
-                            ),
-                          ],
-                        )),
-                    1 => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(favorite[index]['rating'],
-                              (starIndex) {
-                            return Icon(Icons.star,
-                                size: 16, color: Colors.amber);
-                          }),
-                        ),
-                      ),
-                    2 => Container(
-                        padding: EdgeInsets.all(10),
-                        child: Text(
-                          favorite[index]['review'],
-                          softWrap: true,
-                          overflow: TextOverflow.fade,
-                        ),
-                      ),
-                    _ => Container(), // Default case (optional)
-                  },
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
-        );
-      },
-    ),
-  );
+        )
+      : Container();
 }
