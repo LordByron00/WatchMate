@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:WatchMate/screens/mediagpt.dart';
+import 'package:WatchMate/screens/MedeiaDetail.dart';
 import 'package:WatchMate/widgets/bottomNavBar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,9 +17,12 @@ class _DashboardState extends State<dashboardMate> {
   final String baseUrl = 'https://api.themoviedb.org/3';
 
   Map<String, List<dynamic>> categorizedData = {
+    'Crime': [],
+    'Animation': [],
     'Action': [],
     'Comedy': [],
     'Drama': [],
+    'Documentary': [],
   };
 
   bool isLoading = true;
@@ -34,9 +37,12 @@ class _DashboardState extends State<dashboardMate> {
     try {
       // Fetch movies for each genre
       await Future.wait([
+        fetchGenreMovies('Crime', 80), // Genre ID for Drama
+        fetchGenreMovies('Animation', 16), // Genre ID for Drama
         fetchGenreMovies('Action', 28), // Genre ID for Action
         fetchGenreMovies('Comedy', 35), // Genre ID for Comedy
         fetchGenreMovies('Drama', 18), // Genre ID for Drama
+        fetchGenreMovies('Documentary', 99), // Genre ID for Drama
       ]);
       setState(() {
         isLoading = false;

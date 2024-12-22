@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:WatchMate/screens/Chat.dart';
 import 'package:WatchMate/services/getAuthUID.dart';
 import 'package:WatchMate/services/userPreference.dart';
@@ -360,7 +359,12 @@ class _MatchMateState extends State<MatchMate> {
                                       },
                                       child: Icon(Icons.cancel_sharp)),
                                   ElevatedButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        removeFirstUser();
+                                        getFavorites();
+                                        getRatings();
+                                        getReviews();
+                                      },
                                       child: Icon(Icons.thumb_up_sharp)),
                                   ElevatedButton(
                                       onPressed: () {
@@ -443,7 +447,7 @@ class _MatchMateState extends State<MatchMate> {
 
   Widget buildFavorite(media, selectedIndex) {
     return SizedBox(
-      height: 250,
+      height: 270,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -484,28 +488,38 @@ class _MatchMateState extends State<MatchMate> {
                   switch (selectedIndex) {
                     0 => Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          media?[index]['title'] ?? 'No title',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        child: Wrap(children: [
+                          Text(
+                            media?[index]['title'] ?? 'No title',
+                            textAlign: TextAlign.center,
+                            softWrap: true,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          )
+                        ]),
                       ),
-                    1 => Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children:
-                            List.generate(media?[index]['rating'], (starIndex) {
-                          return Icon(Icons.star,
-                              size: 16, color: Colors.amber);
-                        }),
+                    1 => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(media?[index]['rating'],
+                              (starIndex) {
+                            return Icon(Icons.star,
+                                size: 16, color: Colors.amber);
+                          }),
+                        ),
                       ),
                     2 => Container(
                         padding: EdgeInsets.all(10),
-                        child: Text(media?[index]['review']),
+                        child: Wrap(children: [
+                          Text(
+                            media?[index]['review'],
+                            softWrap: true,
+                          )
+                        ]),
                       ),
                     _ => Container(), // Default case (optional)
                   },

@@ -47,7 +47,6 @@ dependencies:
   firebase_storage: ^12.3.6
   cloud_firestore: ^5.5.1
   fluttertoast: ^8.2.10
-  flutter_native_splash: ^2.4.3
   image_picker: ^1.1.2
   supabase_flutter: ^2.0.0  # Add the latest version
   shared_preferences: ^2.2.2 # Latest version
@@ -55,6 +54,7 @@ dependencies:
 
 
 dev_dependencies:
+  flutter_native_splash: ^2.4.3
   flutter_test:
     sdk: flutter
 
@@ -82,6 +82,15 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/
+
+
+flutter_native_splash:
+  color: "#ffffff" # Background color of the splash screen
+  image: assets/watchmate.jpg # Path to your splash image
+  android: true
+  ios: true
+  web: true
+  fullscreen: true # Makes the splash screen fullscreen
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

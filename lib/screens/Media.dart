@@ -12,6 +12,72 @@ class _MediaState extends State<Media> {
   final String imageUrl =
       'https://oberlinreview.org/wp-content/uploads/2022/03/Batman_-Courtesy-of-DC-Comics-.jpg';
 
+  void _showReviewPopup(BuildContext context) {
+    final TextEditingController reviewController = TextEditingController();
+    double starRating = 0.0;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Leave a Review'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Star Rating
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        icon: Icon(
+                          index < starRating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            starRating = index + 1.0;
+                          });
+                        },
+                      );
+                    }),
+                  ),
+                  // Review Text Field
+                  TextField(
+                    controller: reviewController,
+                    decoration: const InputDecoration(
+                      labelText: 'Your review',
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLines: 3,
+                  ),
+                ],
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle the submission logic here
+                print('Review: ${reviewController.text}');
+                print('Rating: $starRating');
+                Navigator.of(context).pop();
+              },
+              child: const Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +120,7 @@ class _MediaState extends State<Media> {
                               label: Text('Rate')),
                           ElevatedButton.icon(
                               icon: Icon(Icons.reviews),
-                              onPressed: () => {print('Review')},
+                              onPressed: () => {_showReviewPopup},
                               label: Text('Review')),
                         ],
                       ),

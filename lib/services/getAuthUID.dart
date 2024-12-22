@@ -44,4 +44,28 @@ class UserService {
     }
     return null;
   }
+
+  Future<Map<String, dynamic>?> fetchDPbyUsername(uid) async {
+    try {
+      String? fbid = await getUserIdFromUsername(uid);
+
+      if (fbid != null && fbid.isNotEmpty) {
+        // Query the 'images' table for a single row where name matches
+        final response = await Supabase.instance.client
+            .from('images')
+            .select()
+            .eq('fbid', fbid!)
+            .order('uploaded_at', ascending: false)
+            .limit(1) // Filter rows where name = 'something'
+            .maybeSingle();
+
+        return response;
+      }
+
+      // Fetch at most one row, or null if none found
+    } catch (e) {
+      print('Unexpected error: $e');
+    }
+    return null;
+  }
 }

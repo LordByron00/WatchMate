@@ -1,4 +1,3 @@
-import 'package:WatchMate/Models/user.dart';
 import 'package:WatchMate/screens/watchApidashboard.dart';
 import 'package:WatchMate/utils/validators.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

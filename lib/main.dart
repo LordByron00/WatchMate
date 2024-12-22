@@ -1,4 +1,5 @@
 import 'package:WatchMate/screens/Home.dart';
+import 'package:WatchMate/screens/Spash.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -78,7 +79,7 @@ class _WatchMateState extends State<WatchMate> {
         fontFamily: 'Arial',
       ),
       themeMode: themeProvider._themeMode,
-      home: AuthPage(),
+      home: SplashScreen(),
       // home: dashboardMate(),
     );
   }

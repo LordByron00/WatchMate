@@ -1,3 +1,8 @@
+import 'package:WatchMate/screens/Chat.dart';
+import 'package:WatchMate/screens/Home.dart';
+import 'package:WatchMate/screens/MedeiaDetail.dart';
+import 'package:WatchMate/screens/profileDetails.dart';
+import 'package:WatchMate/screens/watchApidashboard.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -31,43 +36,54 @@ class _ProfilePageState extends State<ProfilePage> {
     print('initCalled too');
     QuerySnapshot favoriteSnapshot =
         await PreferenceService().getFavorites(Auth().curUserData?.uid);
-    setState(() {
-      favorite = favoriteSnapshot.docs.map((doc) {
-        return doc.data() as Map<String, dynamic>;
-      }).toList();
-    });
+    if (favoriteSnapshot.docs.isNotEmpty) {
+      setState(() {
+        favorite = favoriteSnapshot.docs.map((doc) {
+          return doc.data() as Map<String, dynamic>;
+        }).toList();
+      });
+    }
+
     // print('favorite');
     // print(favorite);
   }
 
   void getRatings() async {
+    print('rating');
     QuerySnapshot favoriteSnapshot =
         await PreferenceService().getRatings(Auth().curUserData?.uid);
-    setState(() {
-      MovieRating = favoriteSnapshot.docs.map((doc) {
-        return doc.data() as Map<String, dynamic>;
-      }).toList();
-    });
+    if (favoriteSnapshot.docs.isNotEmpty) {
+      setState(() {
+        MovieRating = favoriteSnapshot.docs.map((doc) {
+          return doc.data() as Map<String, dynamic>;
+        }).toList();
+      });
+    }
   }
 
   void getReviews() async {
+    print('review');
     QuerySnapshot favoriteSnapshot =
         await PreferenceService().getReviews(Auth().curUserData?.uid);
-    setState(() {
-      MovieReview = favoriteSnapshot.docs.map((doc) {
-        return doc.data() as Map<String, dynamic>;
-      }).toList();
-    });
+
+    if (favoriteSnapshot.docs.isNotEmpty) {
+      setState(() {
+        MovieReview = favoriteSnapshot.docs.map((doc) {
+          return doc.data() as Map<String, dynamic>;
+        }).toList();
+      });
+    }
   }
 
   Future<void> getDP(fileName) async {
     // Retrieve the public URL of the uploaded file
     final publicUrl =
         Supabase.instance.client.storage.from('avatars').getPublicUrl(fileName);
-
-    setState(() {
-      _imageUrl = publicUrl;
-    });
+    if (publicUrl.isNotEmpty) {
+      setState(() {
+        _imageUrl = publicUrl;
+      });
+    }
   }
 
   Future<void> _pickImage() async {
@@ -147,8 +163,8 @@ class _ProfilePageState extends State<ProfilePage> {
       } else {
         setState(() {
           _imageUrl = response['file_url'];
-          print(_imageUrl);
         });
+        print(_imageUrl);
         // Handle the retrieved data
         print('ID: ${response['fbid']}');
         print('Name: ${response['name']}');
@@ -173,9 +189,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
       // Get the download URL
       String downloadUrl = await storageRef.getDownloadURL();
-      setState(() {
-        _imageUrl = downloadUrl;
-      });
+      if (downloadUrl.isNotEmpty) {
+        setState(() {
+          _imageUrl = downloadUrl;
+        });
+      }
 
       print('downloadUrl');
       print(downloadUrl);
@@ -194,11 +212,20 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    fetchDPbyID();
-    getFavorites();
-    getRatings();
-    getReviews();
     Auth().setUser();
+    // fetchDPbyID();
+    wait();
+  }
+
+  void wait() async {
+    try {
+      await fetchDPbyID(); // Ensures fetchDPbyID completes first
+      getFavorites(); // Waits for getFavorites
+      getRatings(); // Waits for getRatings
+      getReviews(); // Waits for getReviews
+    } catch (e) {
+      print('Error in initialization: $e'); // Handle any errors
+    }
   }
 
   final List<String> tabs = ['Favorites', 'Ratings', 'Reviews'];
@@ -212,7 +239,9 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [SizedBox(width: 100), Text('Profile')],
         ),
       ),
-      body: favorite == null || _imageUrl == null
+      endDrawer: Auth().curUserData == null ? null : AppDrawer(),
+      body: (favorite == null || _imageUrl == null) &&
+              Auth().curUserData == null
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
@@ -328,20 +357,16 @@ class _ProfilePageState extends State<ProfilePage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            fixedSize: Size(114, 25),
+                            fixedSize: Size(75, 30),
                           ),
                           onPressed: () {
-                            // Handle Edit Profile Action
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  // builder: (context) => Profile(),
-                                  builder: (context) => SettingsPage(),
-                                ));
+                            _pickImage();
                           },
                           child: Text(
-                            "Edit Profile",
-                            style: TextStyle(fontSize: 13),
+                            "Edit cover",
+                            softWrap: true,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 9),
                           ),
                         ),
                       ),
@@ -407,76 +432,187 @@ class _ProfilePageState extends State<ProfilePage> {
       bottomNavigationBar: BottomNavBar(navx: 3),
     );
   }
+
+  Widget AppDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          UserAccountsDrawerHeader(
+            accountName: Text('${Auth().curUserData!.name}'),
+            accountEmail: Text('@${Auth().curUserData!.email}'),
+            currentAccountPicture: CircleAvatar(
+              backgroundImage: NetworkImage(_imageUrl),
+            ),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.home),
+            title: Text('Home'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => dashboardMate()),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.person),
+            title: Text('Profile Details'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Profile()),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.settings),
+            title: Text('Settings'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.exit_to_app),
+            title: Text('Logout'),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Logout'),
+                    content: Text('Are you sure you want to logout?'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // Implement actual logout functionality here
+                          Navigator.of(context).pop(); // Close the dialog
+                          // Example: Navigator.pushReplacementNamed(context, '/login');
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AuthPage()),
+                              (Route) => false);
+                        },
+                        child: Text('Logout'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 Widget buildFavorite(favorite, selectedIndex) {
   return SizedBox(
-    height: 250,
+    height: 270,
     child: ListView.builder(
       scrollDirection: Axis.horizontal,
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       itemCount: favorite.length, // Sample item count
       itemBuilder: (context, index) {
-        return Card(
-          margin: EdgeInsets.only(right: 10),
-          child: Container(
-            width: 150, // Fixed width
-            height: 200, // Fixed height
-            decoration: BoxDecoration(
-              color: Colors.grey.shade800,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Image Section
-                Container(
-                  height: 180, // Fixed height for the image
-                  width: double.infinity, // Full width for the card
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      // image: AssetImage('assets/${Movies[index]}'),
-                      image: NetworkImage(
-                        'https://image.tmdb.org/t/p/w500${favorite[index]['poster_path']}',
+        return InkWell(
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MovieDetailPage(
+                    movie: favorite[index],
+                  ),
+                ));
+          },
+          child: Card(
+            margin: EdgeInsets.only(right: 10),
+            child: Container(
+              width: 150, // Fixed width
+              height: 270, // Fixed height
+              decoration: BoxDecoration(
+                color: Colors.grey.shade800,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Image Section
+                  Container(
+                    height: 180, // Fixed height for the image
+                    width: double.infinity, // Full width for the card
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        // image: AssetImage('assets/${Movies[index]}'),
+                        image: NetworkImage(
+                          'https://image.tmdb.org/t/p/w500${favorite[index]['poster_path']}',
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      fit: BoxFit.cover,
-                    ),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                      ),
                     ),
                   ),
-                ),
-                // Text Section
+                  // Text Section
 
-                switch (selectedIndex) {
-                  0 => Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        favorite[index]['title'] ?? 'No title',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                  switch (selectedIndex) {
+                    0 => Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Wrap(
+                          children: [
+                            Text(
+                              favorite[index]['title'] ?? 'No title',
+                              textAlign: TextAlign.center,
+                              softWrap: true,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              // overflow: TextOverflow.ellipsis,
+                              overflow: TextOverflow.clip,
+                            ),
+                          ],
+                        )),
+                    1 => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(favorite[index]['rating'],
+                              (starIndex) {
+                            return Icon(Icons.star,
+                                size: 16, color: Colors.amber);
+                          }),
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  1 => Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children:
-                          List.generate(favorite[index]['rating'], (starIndex) {
-                        return Icon(Icons.star, size: 16, color: Colors.amber);
-                      }),
-                    ),
-                  2 => Container(
-                      padding: EdgeInsets.all(10),
-                      child: Text(favorite[index]['review']),
-                    ),
-                  _ => Container(), // Default case (optional)
-                },
-              ],
+                    2 => Container(
+                        padding: EdgeInsets.all(10),
+                        child: Text(
+                          favorite[index]['review'],
+                          softWrap: true,
+                          overflow: TextOverflow.fade,
+                        ),
+                      ),
+                    _ => Container(), // Default case (optional)
+                  },
+                ],
+              ),
             ),
           ),
         );
