@@ -1,7 +1,7 @@
 import 'package:WatchMate/screens/Match.dart';
 import 'package:WatchMate/screens/chatlist.dart';
 import 'package:WatchMate/screens/profile.dart';
-import 'package:WatchMate/screens/watchApidashboard.dart';
+import 'package:WatchMate/screens/Home.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavBar extends StatefulWidget {

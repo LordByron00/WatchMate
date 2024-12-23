@@ -1,8 +1,10 @@
 import 'package:WatchMate/screens/Chat.dart';
-import 'package:WatchMate/screens/Home.dart';
+import 'package:WatchMate/screens/AuthPage.dart';
 import 'package:WatchMate/screens/MedeiaDetail.dart';
 import 'package:WatchMate/screens/profileDetails.dart';
-import 'package:WatchMate/screens/watchApidashboard.dart';
+import 'package:WatchMate/screens/Home.dart';
+import 'package:flutter/rendering.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -27,6 +29,8 @@ class _ProfilePageState extends State<ProfilePage> {
   List<Map<String, dynamic>>? favorite;
   List<Map<String, dynamic>>? MovieRating;
   List<Map<String, dynamic>>? MovieReview;
+  final List<String> tabs = ['Favorites', 'Ratings', 'Reviews'];
+  late Map<String, dynamic>? reviewData;
 
   File? _imageFile; // Local image file
   dynamic _imageUrl; // URL of the uploaded image
@@ -37,6 +41,21 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     // fetchDPbyID();
     wait();
+  }
+
+  Future<void> setReview(Reviewmovie) async {
+    print('setting Review');
+    QuerySnapshot<Object?> reviewSnap =
+        await PreferenceService().checkReview(Reviewmovie);
+
+    if (reviewSnap.docs.isNotEmpty) {
+      setState(() {
+        reviewData = reviewSnap.docs.first.data() as Map<String, dynamic>;
+      });
+    } else {
+      reviewData = null;
+      print('it returned even empty');
+    }
   }
 
   void wait() async {
@@ -227,8 +246,6 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
   }
-
-  final List<String> tabs = ['Favorites', 'Ratings', 'Reviews'];
 
   @override
   Widget build(BuildContext context) {
@@ -424,7 +441,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   switch (selectedIndex) {
                     0 => buildFavorite(favorite, selectedIndex),
                     1 => buildFavorite(MovieRating, selectedIndex),
-                    2 => buildFavorite(MovieReview, selectedIndex),
+                    2 => buildReview(MovieReview),
                     _ => Container(), // Default case (optional)
                   },
                 ],
@@ -440,7 +457,7 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: EdgeInsets.zero,
         children: <Widget>[
           UserAccountsDrawerHeader(
-            accountName: Text('${Auth().curUserData!.name}'),
+            accountName: Text(Auth().curUserData!.name),
             accountEmail: Text('@${Auth().curUserData!.email}'),
             currentAccountPicture: CircleAvatar(
               backgroundImage: NetworkImage(_imageUrl ?? 'no image'),
@@ -520,65 +537,235 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-}
 
-Widget buildFavorite(favorite, selectedIndex) {
-  return favorite != null
-      ? SizedBox(
-          height: 270,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            itemCount: favorite.length, // Sample item count
-            itemBuilder: (context, index) {
-              return InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MovieDetailPage(
-                          movie: favorite[index],
-                        ),
-                      ));
-                },
-                child: Card(
-                  margin: EdgeInsets.only(right: 10),
-                  child: Container(
-                    width: 150, // Fixed width
-                    height: 270, // Fixed height
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade800,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Image Section
-                        Container(
-                          height: 180, // Fixed height for the image
-                          width: double.infinity, // Full width for the card
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              // image: AssetImage('assets/${Movies[index]}'),
-                              image: NetworkImage(
-                                'https://image.tmdb.org/t/p/w500${favorite[index]['poster_path']}',
+  Widget buildReview(reviewList) {
+    return reviewList != null
+        ? SizedBox(
+            height: 330,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.all(10),
+              itemCount: reviewList.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: EdgeInsets.symmetric(horizontal: 10),
+                  width: 290,
+                  padding: EdgeInsets.all(20),
+                  // clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 51, 58, 62),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 70,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            //Movie image
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MovieDetailPage(
+                                        movie: reviewList[index],
+                                      ),
+                                    ));
+                              },
+                              child: Image.network(
+                                'https://image.tmdb.org/t/p/w500${reviewList[index]['poster_path']}',
+                                width: 45,
+                                height: 45,
+                                fit: BoxFit.cover,
+                                alignment: Alignment.topCenter,
                               ),
-                              fit: BoxFit.cover,
                             ),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Flexible(
+                              fit: FlexFit.loose,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Flexible(
+                                    fit: FlexFit.loose,
+                                    child: Text(
+                                      reviewList[index]['title'],
+                                      overflow: TextOverflow.clip,
+                                      softWrap: true,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: List.generate(5, (starIndex) {
+                                      return starIndex <
+                                              reviewList[index]['rating']
+                                          ? Icon(Icons.star,
+                                              size: 18,
+                                              color: const Color.fromRGBO(
+                                                  254, 191, 3, 1))
+                                          : Icon(Icons.star,
+                                              size: 18,
+                                              color: const Color.fromARGB(
+                                                  109, 220, 194, 107));
+                                    }),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Divider(
+                        color: Colors.white,
+                      ),
+                      Expanded(
+                        child: Text(
+                          reviewList[index]['review'],
+                          softWrap: true,
+                          style: TextStyle(
+                              color: const Color.fromARGB(255, 255, 255, 255)),
+                        ),
+                      ),
+                      // Spacer(),
+                      Row(
+                        children: [
+                          Text(
+                            '0',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          SizedBox(width: 5),
+                          GestureDetector(
+                            child: Icon(Icons.thumb_up_alt_sharp,
+                                size: 18,
+                                color:
+                                    const Color.fromARGB(255, 255, 255, 255)),
+                          ),
+                          SizedBox(width: 15),
+                          Text(
+                            '0',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          SizedBox(width: 5),
+                          GestureDetector(
+                              child: Icon(Icons.thumb_down_alt,
+                                  size: 18,
+                                  color: const Color.fromARGB(
+                                      255, 255, 255, 255))),
+                          Spacer(),
+                          PopupMenuButton(
+                              color: const Color.fromARGB(255, 40, 46, 49),
+                              constraints: BoxConstraints(),
+                              padding: EdgeInsets.zero,
+                              icon: Icon(Icons.more_horiz),
+                              onSelected: (item) async {
+                                if (item == 'Edit') {
+                                  print('Edit selected');
+                                  // await setReview(reviewList[index]);
+                                  // _showReviewPopup(context, reviewList[index]);
+                                }
+                              },
+                              itemBuilder: (BuildContext context) => [
+                                    PopupMenuItem(
+                                        value: 'Edit',
+                                        onTap: () async {
+                                          print('edit');
+                                          await setReview(reviewList[index]);
+                                          _showReviewPopup(
+                                              context, reviewList[index]);
+                                        },
+                                        child: Wrap(
+                                          children: [
+                                            Icon(Icons.edit),
+                                            Text('Edit')
+                                          ],
+                                        )),
+                                    PopupMenuItem(
+                                        value: 'Delete',
+                                        onTap: () async {
+                                          print('printing');
+                                          await PreferenceService()
+                                              .clearReview(reviewList[index]);
+                                          getReviews();
+                                        },
+                                        child: Wrap(
+                                          children: [
+                                            Icon(Icons.delete),
+                                            Text('Delete')
+                                          ],
+                                        ))
+                                  ]),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          )
+        : Container();
+  }
+
+  Widget buildFavorite(favorite, selectedIndex) {
+    return favorite != null
+        ? SizedBox(
+            height: selectedIndex != 0 ? 275 : 265,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              itemCount: favorite.length, // Sample item count
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MovieDetailPage(
+                            movie: favorite[index],
+                          ),
+                        ));
+                  },
+                  child: SizedBox(
+                    width: 170,
+                    child: Card(
+                      margin: EdgeInsets.only(right: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Image Section
+                          Container(
+                            height: 180, // Fixed height for the image
+                            width: double.infinity, // Full width for the card
+                            padding: EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                // image: AssetImage('assets/${Movies[index]}'),
+                                image: NetworkImage(
+                                  'https://image.tmdb.org/t/p/w500${favorite[index]['poster_path']}',
+                                ),
+                                fit: BoxFit.cover,
+                              ),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(10),
+                                topRight: Radius.circular(10),
+                              ),
                             ),
                           ),
-                        ),
-                        // Text Section
+                          // Text Section
 
-                        switch (selectedIndex) {
-                          0 => Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Wrap(
-                                children: [
-                                  Text(
+                          switch (selectedIndex) {
+                            0 => Expanded(
+                                child: Container(
+                                  padding: EdgeInsets.all(8.0),
+                                  alignment: Alignment.center,
+                                  child: Text(
                                     favorite[index]['title'] ?? 'No title',
                                     textAlign: TextAlign.center,
                                     softWrap: true,
@@ -587,39 +774,163 @@ Widget buildFavorite(favorite, selectedIndex) {
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                     ),
-                                    // overflow: TextOverflow.ellipsis,
                                     overflow: TextOverflow.clip,
                                   ),
-                                ],
-                              )),
-                          1 => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List.generate(
-                                    favorite[index]['rating'], (starIndex) {
-                                  return Icon(Icons.star,
-                                      size: 16, color: Colors.amber);
-                                }),
+                                ),
                               ),
-                            ),
-                          2 => Container(
-                              padding: EdgeInsets.all(10),
-                              child: Text(
-                                favorite[index]['review'],
-                                softWrap: true,
-                                overflow: TextOverflow.fade,
+                            1 => Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 4),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        favorite[index]['title'] ?? 'No title',
+                                        textAlign: TextAlign.center,
+                                        softWrap: true,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                        // overflow: TextOverflow.ellipsis,
+                                        overflow: TextOverflow.clip,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: List.generate(5, (starIndex) {
+                                          return favorite[index]['rating'] >
+                                                  starIndex
+                                              ? Icon(Icons.star,
+                                                  size: 16, color: Colors.amber)
+                                              : Icon(Icons.star,
+                                                  size: 16,
+                                                  color: const Color.fromARGB(
+                                                      89, 182, 151, 57));
+                                        }),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          _ => Container(), // Default case (optional)
-                        },
-                      ],
+                            2 => Container(
+                                padding: EdgeInsets.all(10),
+                                child: Text(
+                                  favorite[index]['review'],
+                                  softWrap: true,
+                                  overflow: TextOverflow.fade,
+                                ),
+                              ),
+                            _ => Container(), // Default case (optional)
+                          },
+                        ],
+                      ),
                     ),
                   ),
-                ),
+                );
+              },
+            ),
+          )
+        : Container();
+  }
+
+  void _showReviewPopup(BuildContext context, reviewMovie) {
+    final TextEditingController reviewController = TextEditingController();
+    int starRating = (reviewData?['rating'] ?? 0);
+    reviewController.text = reviewData?['review'] ?? '';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.all(15),
+          title: const Text('Leave a Review'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Star Rating
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            starRating = index + 1;
+                          });
+                        },
+                        child: Icon(
+                          index < starRating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                          size: 25,
+                        ),
+                      );
+                    }),
+                  ),
+                  // Review Text Field
+                  TextField(
+                    controller: reviewController,
+                    decoration: InputDecoration(
+                      labelText: 'Your review',
+                      border: const OutlineInputBorder(),
+                    ),
+                    maxLines: 3,
+                  ),
+                ],
               );
             },
           ),
-        )
-      : Container();
+          actions: [
+            Row(
+              children: [
+                TextButton(
+                  onPressed: () async {
+                    await PreferenceService().clearReview(reviewMovie);
+                    // loadReviewStatus();
+                    getReviews();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    'Clear',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    // Handle the submission logic here
+                    // print('Review: ${reviewController.text}');
+                    // print('Rating: $starRating');
+
+                    Map<String, dynamic> movieReview = {
+                      // ...widget.movie,
+                      'review': reviewController.text,
+                      'rating': starRating,
+                    };
+
+                    await PreferenceService().addReview(movieReview);
+                    getReviews();
+                    // loadReviewStatus();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Submit', style: TextStyle(fontSize: 12)),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

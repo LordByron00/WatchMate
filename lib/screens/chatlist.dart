@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ConversationsList extends StatefulWidget {
-  ConversationsList({super.key});
+  const ConversationsList({super.key});
 
   @override
   State<ConversationsList> createState() => _ConversationsListState();

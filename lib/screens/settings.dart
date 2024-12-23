@@ -1,4 +1,4 @@
-import 'package:WatchMate/screens/Home.dart';
+import 'package:WatchMate/screens/AuthPage.dart';
 import 'package:WatchMate/screens/profileDetails.dart';
 import 'package:WatchMate/screens/darkmode.dart';
 import 'package:WatchMate/widgets/bottomNavBar.dart';

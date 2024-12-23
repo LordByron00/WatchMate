@@ -1,5 +1,5 @@
 import 'package:WatchMate/main.dart';
-import 'package:WatchMate/screens/watchApidashboard.dart';
+import 'package:WatchMate/screens/Home.dart';
 import 'package:WatchMate/widgets/bottomNavBar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

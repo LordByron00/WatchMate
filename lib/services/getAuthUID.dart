@@ -54,7 +54,7 @@ class UserService {
         final response = await Supabase.instance.client
             .from('images')
             .select()
-            .eq('fbid', fbid!)
+            .eq('fbid', fbid)
             .order('uploaded_at', ascending: false)
             .limit(1) // Filter rows where name = 'something'
             .maybeSingle();

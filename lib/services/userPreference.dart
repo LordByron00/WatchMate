@@ -1,4 +1,3 @@
-import 'package:WatchMate/ignore/watchmateDashboard.dart';
 import 'package:WatchMate/utils/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 

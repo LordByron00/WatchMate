@@ -1,6 +1,6 @@
 // import 'package:feranz_salonga/main.dart'; // Ensure this path is correct
 // import 'package:firebase_auth/firebase_auth.dart';
-import 'package:WatchMate/screens/Home.dart';
+import 'package:WatchMate/screens/AuthPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

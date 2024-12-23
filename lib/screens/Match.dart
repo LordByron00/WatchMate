@@ -1,6 +1,8 @@
 import 'package:WatchMate/screens/Chat.dart';
+import 'package:WatchMate/screens/MedeiaDetail.dart';
 import 'package:WatchMate/services/getAuthUID.dart';
 import 'package:WatchMate/services/userPreference.dart';
+import 'package:WatchMate/utils/auth.dart';
 import 'package:WatchMate/widgets/bottomNavBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -104,8 +106,10 @@ class _MatchMateState extends State<MatchMate> {
   }
 
   Future<void> _loadUsers() async {
-    QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('users').get();
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('username', isNotEqualTo: Auth().curUserData?.username)
+        .get();
     setState(() {
       users = snapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
@@ -215,7 +219,9 @@ class _MatchMateState extends State<MatchMate> {
                             decoration: BoxDecoration(
                               image: DecorationImage(
                                 image: NetworkImage(
-                                  _matchImageUrl!, // Replace with actual image URL
+                                  users.isNotEmpty
+                                      ? _matchImageUrl!
+                                      : 'https://images.pexels.com/photos/1526/dark-blur-blurred-gradient.jpg', // Replace with actual image URL
                                 ),
                                 fit: BoxFit.cover,
                               ),
@@ -234,6 +240,14 @@ class _MatchMateState extends State<MatchMate> {
                                 )
                               ],
                             ),
+                            child: users.isEmpty
+                                ? Center(
+                                    child: SizedBox(
+                                        width: 50,
+                                        height: 50,
+                                        child: CircularProgressIndicator()),
+                                  )
+                                : Container(),
                           ),
                           Container(
                             height: MediaQuery.of(context).size.height * 0.6,
@@ -254,12 +268,14 @@ class _MatchMateState extends State<MatchMate> {
                               child: Padding(
                                 padding: const EdgeInsets.all(10.0),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment: users.isNotEmpty
+                                      ? CrossAxisAlignment.start
+                                      : CrossAxisAlignment.center,
                                   children: [
                                     Text(
                                         users.isNotEmpty
                                             ? users[0]['name']
-                                            : 'user not found',
+                                            : 'Finding match..',
                                         style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
@@ -418,282 +434,269 @@ class _MatchMateState extends State<MatchMate> {
                     switch (currentView) {
                       0 => buildFavorite(favorite, currentView),
                       1 => buildFavorite(MovieRating, currentView),
-                      2 => buildFavorite(MovieReview, currentView),
+                      2 => buildReview(MovieReview),
                       _ => Container(), // Default case (optional)
                     },
-
-                    // SizedBox(
-                    //   height: 300,
-                    //   child: ListView.builder(
-                    //     scrollDirection: Axis.horizontal,
-                    //     itemCount: favorite?.length,
-                    //     itemBuilder: (context, index) {
-                    //       switch (currentView) {
-                    //         case 1:
-                    //           return buildMovieRating(index);
-                    //         case 2:
-                    //           return buildMovieReview(index);
-                    //         default:
-                    //           return buildMovie(index);
-                    //       }
-                    //     },
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
         bottomNavigationBar: BottomNavBar(navx: 1));
   }
 
-  Widget buildFavorite(media, selectedIndex) {
-    return SizedBox(
-      height: 270,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-        itemCount: media.length, // Sample item count
-        itemBuilder: (context, index) {
-          return Card(
-            margin: EdgeInsets.only(right: 10),
-            child: Container(
-              width: 150, // Fixed width
-              height: 200, // Fixed height
-              decoration: BoxDecoration(
-                color: Colors.grey.shade800,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Image Section
-                  Container(
-                    height: 180, // Fixed height for the image
-                    width: double.infinity, // Full width for the card
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        // image: AssetImage('assets/${Movies[index]}'),
-                        image: NetworkImage(
-                          'https://image.tmdb.org/t/p/w500${media[index]['poster_path']}',
+  Widget buildReview(reviewList) {
+    return reviewList != null
+        ? SizedBox(
+            height: 330,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.all(10),
+              itemCount: reviewList.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: EdgeInsets.symmetric(horizontal: 10),
+                  width: 290,
+                  padding: EdgeInsets.all(20),
+                  // clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 51, 58, 62),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      SizedBox(
+                        height: 70,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MovieDetailPage(
+                                        movie: reviewList[index],
+                                      ),
+                                    ));
+                              },
+                              child: Image.network(
+                                'https://image.tmdb.org/t/p/w500${reviewList[index]['poster_path']}',
+                                width: 45,
+                                height: 45,
+                                fit: BoxFit.cover,
+                                alignment: Alignment.topCenter,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Flexible(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      reviewList[index]['title'],
+                                      // overflow: TextOverflow.ellipsis,
+                                      softWrap: true,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: List.generate(5, (starIndex) {
+                                      return starIndex <
+                                              reviewList[index]['rating']
+                                          ? Icon(Icons.star,
+                                              size: 18,
+                                              color: const Color.fromRGBO(
+                                                  254, 191, 3, 1))
+                                          : Icon(Icons.star,
+                                              size: 18,
+                                              color: const Color.fromARGB(
+                                                  109, 220, 194, 107));
+                                    }),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        fit: BoxFit.cover,
                       ),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
+                      // SizedBox(height: 12),
+                      Divider(
+                        color: Colors.white,
+                      ),
+                      Expanded(
+                        child: Text(
+                          reviewList[index]['review'],
+                          softWrap: true,
+                          style: TextStyle(
+                              color: const Color.fromARGB(255, 255, 255, 255)),
+                        ),
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '0',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          SizedBox(width: 5),
+                          GestureDetector(
+                            child: Icon(Icons.thumb_up_alt_sharp,
+                                size: 18,
+                                color:
+                                    const Color.fromARGB(255, 255, 255, 255)),
+                          ),
+                          SizedBox(width: 15),
+                          Text(
+                            '0',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          SizedBox(width: 5),
+                          GestureDetector(
+                              child: Icon(Icons.thumb_down_alt,
+                                  size: 18,
+                                  color: const Color.fromARGB(
+                                      255, 255, 255, 255))),
+                          // Spacer(),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          )
+        : Container();
+  }
+
+  Widget buildFavorite(media, selectedIndex) {
+    return media != null
+        ? SizedBox(
+            height: selectedIndex != 0 ? 285 : 265,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              itemCount: media.length, // Sample item count
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MovieDetailPage(
+                            movie: media[index],
+                          ),
+                        ));
+                  },
+                  child: SizedBox(
+                    width: 170,
+                    child: Card(
+                      margin: EdgeInsets.only(right: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Image Section
+                          Container(
+                            height: 180, // Fixed height for the image
+                            width: double.infinity, // Full width for the card
+                            padding: EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                // image: AssetImage('assets/${Movies[index]}'),
+                                image: NetworkImage(
+                                  'https://image.tmdb.org/t/p/w500${media[index]['poster_path']}',
+                                ),
+                                fit: BoxFit.cover,
+                              ),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(10),
+                                topRight: Radius.circular(10),
+                              ),
+                            ),
+                          ),
+                          // Text Section
+
+                          switch (selectedIndex) {
+                            0 => Expanded(
+                                child: Container(
+                                  padding: EdgeInsets.all(8.0),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    media[index]['title'] ?? 'No title',
+                                    textAlign: TextAlign.center,
+                                    softWrap: true,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                    overflow: TextOverflow.clip,
+                                  ),
+                                ),
+                              ),
+                            1 => Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 4),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        media[index]['title'] ?? 'No title',
+                                        textAlign: TextAlign.center,
+                                        softWrap: true,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                        // overflow: TextOverflow.ellipsis,
+                                        overflow: TextOverflow.clip,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: List.generate(5, (starIndex) {
+                                          return media[index]['rating'] >
+                                                  starIndex
+                                              ? Icon(Icons.star,
+                                                  size: 16, color: Colors.amber)
+                                              : Icon(Icons.star,
+                                                  size: 16,
+                                                  color: const Color.fromARGB(
+                                                      89, 182, 151, 57));
+                                        }),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            2 => Container(
+                                padding: EdgeInsets.all(10),
+                                child: Text(
+                                  media[index]['review'],
+                                  softWrap: true,
+                                  overflow: TextOverflow.fade,
+                                ),
+                              ),
+                            _ => Container(), // Default case (optional)
+                          },
+                        ],
                       ),
                     ),
                   ),
-                  // Text Section
-
-                  switch (selectedIndex) {
-                    0 => Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Wrap(children: [
-                          Text(
-                            media?[index]['title'] ?? 'No title',
-                            textAlign: TextAlign.center,
-                            softWrap: true,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          )
-                        ]),
-                      ),
-                    1 => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(media?[index]['rating'],
-                              (starIndex) {
-                            return Icon(Icons.star,
-                                size: 16, color: Colors.amber);
-                          }),
-                        ),
-                      ),
-                    2 => Container(
-                        padding: EdgeInsets.all(10),
-                        child: Wrap(children: [
-                          Text(
-                            media?[index]['review'],
-                            softWrap: true,
-                          )
-                        ]),
-                      ),
-                    _ => Container(), // Default case (optional)
-                  },
-                ],
-              ),
+                );
+              },
             ),
-          );
-        },
-      ),
-    );
+          )
+        : Container();
   }
-
-  // Widget buildMovie(int index) {
-  //   return Card(
-  //     margin: EdgeInsets.all(10),
-  //     child: Container(
-  //       color: const Color.fromARGB(255, 41, 39, 39),
-  //       width: 120,
-  //       alignment: Alignment.center,
-  //       padding: EdgeInsets.all(10),
-  //       child: Column(
-  //         children: [
-  //           Container(
-  //             height: 180, // Fixed height for the image
-  //             width: double.infinity, // Full width for the card
-  //             decoration: BoxDecoration(
-  //               image: DecorationImage(
-  //                 image: NetworkImage(
-  //                   'https://image.tmdb.org/t/p/w500${favorite?[index]['poster_path']}',
-  //                 ),
-  //                 fit: BoxFit.cover,
-  //               ),
-  //               borderRadius: BorderRadius.only(
-  //                 topLeft: Radius.circular(10),
-  //                 topRight: Radius.circular(10),
-  //               ),
-  //             ),
-  //           ),
-  //           Padding(
-  //             padding: EdgeInsets.all(8.0),
-  //             child: Text(
-  //               favorite?[index]['title'],
-  //               textAlign: TextAlign.center,
-  //               style: TextStyle(
-  //                 fontSize: 14,
-  //                 fontWeight: FontWeight.bold,
-  //                 color: Colors.white,
-  //               ),
-  //               overflow: TextOverflow.ellipsis,
-  //             ),
-  //           ),
-  //           // Image.network(
-  //           //     'https://i1.sndcdn.com/artworks-dnl5nAJKNjLM05B6-bkFueg-t500x500.jpg'),
-  //           // Text(
-  //           //   getCurrentList()[index],
-  //           //   textAlign: TextAlign.center,
-  //           //   style: TextStyle(color: Colors.black),
-  //           // ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget buildMovieRating(int index) {
-  //   return Card(
-  //     margin: EdgeInsets.all(10),
-  //     child: Container(
-  //       color: const Color.fromARGB(255, 41, 39, 39),
-  //       width: 120,
-  //       alignment: Alignment.center,
-  //       padding: EdgeInsets.all(10),
-  //       child: Column(
-  //         children: [
-  //           Container(
-  //             height: 200, // Fixed height for the image
-  //             width: double.infinity, // Full width for the card
-  //             decoration: BoxDecoration(
-  //               image: DecorationImage(
-  //                 image: NetworkImage(
-  //                   'https://image.tmdb.org/t/p/w500${MovieRating?[index]['poster_path']}',
-  //                 ),
-  //                 fit: BoxFit.cover,
-  //               ),
-  //               borderRadius: BorderRadius.only(
-  //                 topLeft: Radius.circular(10),
-  //                 topRight: Radius.circular(10),
-  //               ),
-  //             ),
-  //           ),
-  //           Padding(
-  //             padding: EdgeInsets.all(8.0),
-  //             child: Text(
-  //               MovieRating?[index]['title'],
-  //               textAlign: TextAlign.center,
-  //               style: TextStyle(
-  //                 fontSize: 14,
-  //                 fontWeight: FontWeight.bold,
-  //                 color: Colors.white,
-  //               ),
-  //               overflow: TextOverflow.ellipsis,
-  //             ),
-  //           ),
-  //           Row(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: List.generate(5, (starIndex) {
-  //               return Icon(Icons.star, size: 16, color: Colors.amber);
-  //             }),
-  //           ),
-  //           // Image.network(
-  //           //     'https://i1.sndcdn.com/artworks-dnl5nAJKNjLM05B6-bkFueg-t500x500.jpg'),
-  //           // Text(
-  //           //   getCurrentList()[index],
-  //           //   textAlign: TextAlign.center,
-  //           //   style: TextStyle(color: Colors.black),
-  //           // ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget buildMovieReview(int index) {
-  //   return Card(
-  //     margin: EdgeInsets.all(10),
-  //     child: Container(
-  //       color: const Color.fromARGB(255, 41, 39, 39),
-  //       width: 120,
-  //       alignment: Alignment.center,
-  //       padding: EdgeInsets.all(10),
-  //       child: Column(
-  //         children: [
-  //           Container(
-  //             height: 180, // Fixed height for the image
-  //             width: double.infinity, // Full width for the card
-  //             decoration: BoxDecoration(
-  //               image: DecorationImage(
-  //                 image: NetworkImage(
-  //                   'https://image.tmdb.org/t/p/w500${MovieReview?[index]['poster_path']}',
-  //                 ),
-  //                 fit: BoxFit.cover,
-  //               ),
-  //               borderRadius: BorderRadius.only(
-  //                 topLeft: Radius.circular(10),
-  //                 topRight: Radius.circular(10),
-  //               ),
-  //             ),
-  //           ),
-  //           Padding(
-  //             padding: EdgeInsets.all(8.0),
-  //             child: Text(
-  //               MovieReview?[index]['title'],
-  //               textAlign: TextAlign.center,
-  //               style: TextStyle(
-  //                 fontSize: 14,
-  //                 fontWeight: FontWeight.bold,
-  //                 color: Colors.white,
-  //               ),
-  //               overflow: TextOverflow.ellipsis,
-  //             ),
-  //           ),
-  //           Text('This movie is so wonderful!'),
-  //           // Image.network(
-  //           //     'https://i1.sndcdn.com/artworks-dnl5nAJKNjLM05B6-bkFueg-t500x500.jpg'),
-  //           // Text(
-  //           //   getCurrentList()[index],
-  //           //   textAlign: TextAlign.center,
-  //           //   style: TextStyle(color: Colors.black),
-  //           // ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
   changeHighlight() {
     return ButtonStyle(
