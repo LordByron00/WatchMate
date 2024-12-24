@@ -89,12 +89,19 @@ class _ProfilePageState extends State<ProfilePage> {
   void getRatings() async {
     print('getting Rating');
     QuerySnapshot favoriteSnapshot =
-        await PreferenceService().getRatings(Auth().curUserData?.uid);
+        await PreferenceService().getReviews(Auth().curUserData?.uid);
     if (favoriteSnapshot.docs.isNotEmpty) {
       setState(() {
-        MovieRating = favoriteSnapshot.docs.map((doc) {
-          return doc.data() as Map<String, dynamic>;
-        }).toList();
+        // MovieRating = favoriteSnapshot.docs.map((doc) {
+        //   return doc.data() as Map<String, dynamic>;
+        // }).toList();
+
+        MovieRating = favoriteSnapshot.docs
+            .where((doc) =>
+                doc['rating'] != null &&
+                doc['rating'] > 0) // Add your specific condition here
+            .map((doc) => doc.data() as Map<String, dynamic>)
+            .toList();
       });
     }
   }
@@ -106,10 +113,20 @@ class _ProfilePageState extends State<ProfilePage> {
 
     if (favoriteSnapshot.docs.isNotEmpty) {
       setState(() {
-        MovieReview = favoriteSnapshot.docs.map((doc) {
-          return doc.data() as Map<String, dynamic>;
-        }).toList();
+        MovieReview = favoriteSnapshot.docs
+            .where((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              return data.isNotEmpty && // Ensure `data` is not null
+                  data.containsKey('review') &&
+                  data['review'] != null && // Ensure 'review' is not null
+                  data['review'] != ''; // Ensure 'review' is not empty
+            }) // Add your specific condition here
+            .map((doc) => doc.data() as Map<String, dynamic>)
+            .toList();
       });
+
+      print('getReviews');
+      print(MovieReview);
     }
   }
 
@@ -470,7 +487,7 @@ class _ProfilePageState extends State<ProfilePage> {
             leading: Icon(Icons.home),
             title: Text('Home'),
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => dashboardMate()),
               );
@@ -678,6 +695,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                         onTap: () async {
                                           print('edit');
                                           await setReview(reviewList[index]);
+                                          print('reviewData');
+                                          print(reviewData);
                                           _showReviewPopup(
                                               context, reviewList[index]);
                                         },
@@ -716,7 +735,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget buildFavorite(favorite, selectedIndex) {
     return favorite != null
         ? SizedBox(
-            height: selectedIndex != 0 ? 275 : 265,
+            height: selectedIndex != 0 ? 285 : 265,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -889,7 +908,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 TextButton(
                   onPressed: () async {
                     await PreferenceService().clearReview(reviewMovie);
-                    // loadReviewStatus();
+                    // await PreferenceService().clearRating(reviewMovie);
                     getReviews();
                     Navigator.of(context).pop();
                   },
@@ -909,19 +928,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    // Handle the submission logic here
-                    // print('Review: ${reviewController.text}');
-                    // print('Rating: $starRating');
-
                     Map<String, dynamic> movieReview = {
-                      // ...widget.movie,
+                      ...reviewMovie,
                       'review': reviewController.text,
                       'rating': starRating,
                     };
 
                     await PreferenceService().addReview(movieReview);
+                    // await PreferenceService().addRating(movieReview);
                     getReviews();
-                    // loadReviewStatus();
                     Navigator.of(context).pop();
                   },
                   child: const Text('Submit', style: TextStyle(fontSize: 12)),

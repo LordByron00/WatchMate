@@ -16,7 +16,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   bool isFavorite = false;
   bool reviewStatus = false;
   bool ratingStatus = false;
-  late Map<String, dynamic>? reviewData;
+  Map<String, dynamic>? reviewData;
   List<String> ratingList = ['Awful', 'Meh', 'Good', 'Amazing', 'Masterpiece'];
   List<bool> isSelectedList = List.generate(5, (index) => false);
 
@@ -38,16 +38,16 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   @override
   void initState() {
     super.initState();
-    setReview();
-    setRating();
-    loadFavoriteStatus();
-    loadReviewStatus();
-    loadratingStatus();
+    waitReviewDamnIt();
+    // setReview();
+    // setRating();
+    // loadReviewStatus();
+    // loadratingStatus();
   }
 
   @override
   Widget build(BuildContext context) {
-    print(widget.movie);
+    // print(widget.movie);
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(),
@@ -91,7 +91,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                         // colorBlendMode: BlendMode.luminosity,
                       ),
                     ),
-                    // Bottom Overlay with Title and Buttons
+                    // Bottom Over&& reviewData?['rating'] lay with Title and Buttons
                     Positioned(
                       bottom: 0,
                       left: 0,
@@ -389,8 +389,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 // Clear Button
                 ElevatedButton(
                   onPressed: () async {
+                    // await PreferenceService().clearRating(widget.movie);
                     await PreferenceService().clearRating(widget.movie);
-                    loadratingStatus();
+                    // loadratingStatus();
+                    setReview();
                     Navigator.of(context).pop();
                   },
                   child: const Text(
@@ -421,9 +423,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                         ...widget.movie,
                         'rating': starRating,
                       };
-                      await PreferenceService().addRating(movieRating);
-                      setRating();
-                      loadratingStatus();
+
+                      // await PreferenceService().addRating(movieRating);
+                      await PreferenceService().addReview(movieRating);
+                      setReview();
+                      // setRating();
+                      // loadratingStatus();
                     } else {
                       // Show a message if no rating was given
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -448,8 +453,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
   void _showReviewPopup(BuildContext context) {
     final TextEditingController reviewController = TextEditingController();
-    int starRating = (reviewData?['rating'] ?? 0);
-    reviewController.text = reviewData?['review'] ?? '';
+    int starRating = 0;
+    if (reviewData != null) {
+      starRating = (reviewData?['rating'] ?? 0);
+      reviewController.text = reviewData?['review'] ?? '';
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -497,7 +506,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 TextButton(
                   onPressed: () async {
                     await PreferenceService().clearReview(widget.movie);
-                    loadReviewStatus();
+                    // await PreferenceService().clearRating(widget.movie);
+                    // loadReviewStatus();
+                    // loadratingStatus();
+                    setReview();
                     Navigator.of(context).pop();
                   },
                   child: const Text(
@@ -516,19 +528,43 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    // Handle the submission logic here
-                    // print('Review: ${reviewController.text}');
-                    // print('Rating: $starRating');
+                    if (reviewController.text.isEmpty && starRating == 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Please provide a rating and review')),
+                      );
+                    } else if (reviewController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Please provide a review')),
+                      );
+                    } else if (starRating == 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Please provide a rating')),
+                      );
+                    } else {
+                      Map<String, dynamic> movieReview = {
+                        ...widget.movie,
+                        'review': reviewController.text,
+                        'rating': starRating,
+                      };
 
-                    Map<String, dynamic> movieReview = {
-                      ...widget.movie,
-                      'review': reviewController.text,
-                      'rating': starRating,
-                    };
+                      // Map<String, dynamic> movieRating = {
+                      //   ...widget.movie,
+                      //   'rating': starRating
+                      // };
 
-                    await PreferenceService().addReview(movieReview);
-                    setReview();
-                    loadReviewStatus();
+                      await PreferenceService().addReview(movieReview);
+                      // await PreferenceService().addRating(movieRating);
+                      setReview();
+                      // loadReviewStatus();
+
+                      // setRating();
+                      // loadratingStatus();
+                    }
+
                     Navigator.of(context).pop();
                   },
                   child: const Text('Submit', style: TextStyle(fontSize: 12)),
@@ -542,21 +578,21 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   }
 
   Future<void> loadFavoriteStatus() async {
+    print('setFavorite');
     bool favorite = await PreferenceService().checkFavorite(widget.movie);
     setState(() {
       isFavorite = favorite;
     });
+    print('done setting favorite');
   }
 
-  void loadReviewStatus() async {
-    bool reviewStatus2 =
-        await PreferenceService().checkReviewStatus(widget.movie);
-    setState(() {
-      reviewStatus = reviewStatus2;
-    });
+  void waitReviewDamnIt() async {
+    await setReview();
+    loadFavoriteStatus();
   }
 
-  void setReview() async {
+  Future<void> setReview() async {
+    print('setRerview');
     QuerySnapshot<Object?> reviewSnap =
         await PreferenceService().checkReview(widget.movie);
 
@@ -564,36 +600,82 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       setState(() {
         reviewData = reviewSnap.docs.first.data() as Map<String, dynamic>;
       });
+
+      if (reviewData != null) {
+        if (reviewData?['review'] != null && reviewData?['review'] != '') {
+          reviewStatus = true;
+        }
+        if (reviewData?['rating'] > 0) {
+          for (int i = 0; i < isSelectedList.length; i++) {
+            setState(() {
+              isSelectedList[i] = false;
+            });
+          }
+          setState(() {
+            isSelectedList[reviewData?['rating'] - 1] = true;
+            ratingStatus = true;
+          });
+        } else {
+          setState(() {
+            for (int i = 0; i < isSelectedList.length; i++) {
+              setState(() {
+                isSelectedList[i] = false;
+              });
+            }
+            ratingStatus = false;
+          });
+        }
+      }
     } else {
-      reviewData = null;
-      print('it returned even empty');
-    }
-  }
-
-  void setRating() async {
-    QuerySnapshot<Object?> ratingSnap =
-        await PreferenceService().checkRating(widget.movie);
-
-    if (ratingSnap.docs.isNotEmpty) {
-      Map<String, dynamic>? ratingData =
-          ratingSnap.docs.first.data() as Map<String, dynamic>;
+      for (int i = 0; i < isSelectedList.length; i++) {
+        setState(() {
+          isSelectedList[i] = false;
+        });
+      }
       setState(() {
-        int i = ratingData['rating'];
-        print('rating');
-        print(i);
-        // int indexRating = i.toInt();
-        isSelectedList[i - 1] = true;
+        reviewData = null;
+        reviewStatus = false;
+        ratingStatus = false;
       });
-    } else {
-      reviewData = null;
       print('it returned even empty');
     }
   }
 
-  void loadratingStatus() async {
-    bool ratingStat = await PreferenceService().checkRatingStatus(widget.movie);
-    setState(() {
-      ratingStatus = ratingStat;
-    });
-  }
+  // void loadReviewStatus() async {
+  //   bool reviewStatus2 =
+  //       await PreferenceService().checkReviewStatus(widget.movie);
+  //   setState(() {
+  //     reviewStatus = reviewStatus2;
+  //   });
+  // }
+
+  // void setRating() async {
+  //   QuerySnapshot<Object?> ratingSnap =
+  //       await PreferenceService().checkRating(widget.movie);
+
+  //   if (ratingSnap.docs.isNotEmpty) {
+  //     Map<String, dynamic>? ratingData =
+  //         ratingSnap.docs.first.data() as Map<String, dynamic>;
+  //     setState(() {
+  //       int i = ratingData['rating'];
+  //       print('rating');
+  //       print(i);
+  //       // int indexRating = i.toInt();
+  //       isSelectedList[i - 1] = true;
+  //     });
+  //   } else {
+  //     reviewData = null;
+  //     print('it returned even empty');
+  //   }
+  // }
+
+  // void loadratingStatus() async {
+  //   bool ratingStat = await PreferenceService().checkRatingStatus(widget.movie);
+  //   print(ratingStat);
+
+  //   setState(() {
+  //     ratingStatus = ratingStat;
+  //     print(ratingStatus);
+  //   });
+  // }
 }

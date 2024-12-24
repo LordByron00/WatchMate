@@ -133,6 +133,7 @@ class PreferenceService {
         .doc(curUserID)
         .collection('review')
         .where('id', isEqualTo: movie['id'])
+        .where('review', isNotEqualTo: null)
         .limit(1)
         .get();
 
@@ -143,8 +144,9 @@ class PreferenceService {
     QuerySnapshot reviewSnap = await _firebaseFirestore
         .collection('users')
         .doc(curUserID)
-        .collection('rating')
+        .collection('review')
         .where('id', isEqualTo: movie['id'])
+        .where('rating', isGreaterThanOrEqualTo: 1)
         .limit(1)
         .get();
 
@@ -157,6 +159,7 @@ class PreferenceService {
         .doc(curUserID)
         .collection('review')
         .where('id', isEqualTo: movie['id'])
+        .where('review', isNotEqualTo: null)
         .limit(1)
         .get();
     if (reviewSnap.docs.isEmpty) {
@@ -170,10 +173,14 @@ class PreferenceService {
     QuerySnapshot reviewSnap = await _firebaseFirestore
         .collection('users')
         .doc(curUserID)
-        .collection('rating')
+        .collection('review')
         .where('id', isEqualTo: movie['id'])
+        .where('rating', isGreaterThanOrEqualTo: 1)
         .limit(1)
         .get();
+
+    print('reviewSnap');
+    print(reviewSnap);
     if (reviewSnap.docs.isEmpty) {
       return false;
     } else {
@@ -225,8 +232,9 @@ class PreferenceService {
     QuerySnapshot ratingsnap = await _firebaseFirestore
         .collection('users')
         .doc(curUserID)
-        .collection('rating')
+        .collection('review')
         .where('id', isEqualTo: movie['id'])
+        .where('rating', isNotEqualTo: null)
         .limit(1)
         .get();
 
@@ -235,9 +243,9 @@ class PreferenceService {
       await _firebaseFirestore
           .collection('users')
           .doc(curUserID)
-          .collection('rating')
+          .collection('review')
           .doc(ratingID)
-          .delete();
+          .update({'rating': 0});
     }
   }
 }

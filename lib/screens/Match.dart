@@ -81,9 +81,11 @@ class _MatchMateState extends State<MatchMate> {
     String? watchUID = await getUID();
     print(watchUID);
     QuerySnapshot favoriteSnapshot =
-        await PreferenceService().getRatings(watchUID);
+        await PreferenceService().getReviews(watchUID);
     setState(() {
-      MovieRating = favoriteSnapshot.docs.map((doc) {
+      MovieRating = favoriteSnapshot.docs
+          .where((doc) => doc['rating'] != null && doc['rating'] > 0)
+          .map((doc) {
         return doc.data() as Map<String, dynamic>;
       }).toList();
     });
@@ -99,7 +101,9 @@ class _MatchMateState extends State<MatchMate> {
     QuerySnapshot favoriteSnapshot =
         await PreferenceService().getReviews(watchUID);
     setState(() {
-      MovieReview = favoriteSnapshot.docs.map((doc) {
+      MovieReview = favoriteSnapshot.docs
+          .where((doc) => doc['review'] != null)
+          .map((doc) {
         return doc.data() as Map<String, dynamic>;
       }).toList();
     });
@@ -385,7 +389,7 @@ class _MatchMateState extends State<MatchMate> {
                                   ElevatedButton(
                                       onPressed: () {
                                         if (users.isNotEmpty) {
-                                          Navigator.push(
+                                          Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) => Chat(
@@ -578,7 +582,7 @@ class _MatchMateState extends State<MatchMate> {
   Widget buildFavorite(media, selectedIndex) {
     return media != null
         ? SizedBox(
-            height: selectedIndex != 0 ? 285 : 265,
+            height: selectedIndex != 0 ? 295 : 265,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -632,7 +636,7 @@ class _MatchMateState extends State<MatchMate> {
                                     textAlign: TextAlign.center,
                                     softWrap: true,
                                     style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: 11,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                     ),
@@ -652,7 +656,7 @@ class _MatchMateState extends State<MatchMate> {
                                         textAlign: TextAlign.center,
                                         softWrap: true,
                                         style: TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 11,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
                                         ),
