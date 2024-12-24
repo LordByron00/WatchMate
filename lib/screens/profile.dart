@@ -865,7 +865,10 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (BuildContext context) {
         return AlertDialog(
           contentPadding: EdgeInsets.all(15),
-          title: const Text('Leave a Review'),
+          title: const Text(
+            'Leave a Review',
+            textAlign: TextAlign.center,
+          ),
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
               return Column(
@@ -889,6 +892,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     }),
                   ),
+
                   // Review Text Field
                   TextField(
                     controller: reviewController,
@@ -896,7 +900,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       labelText: 'Your review',
                       border: const OutlineInputBorder(),
                     ),
-                    maxLines: 3,
+                    style: TextStyle(fontSize: 12),
+                    maxLines: 6,
+                    maxLength: 200,
                   ),
                 ],
               );

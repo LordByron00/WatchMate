@@ -463,7 +463,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Leave a Review'),
+          title: const Text(
+            'Leave a Review',
+            textAlign: TextAlign.center,
+          ),
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
               return Column(
@@ -494,7 +497,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                       labelText: 'Your review',
                       border: const OutlineInputBorder(),
                     ),
-                    maxLines: 3,
+                    maxLines: 5,
+                    maxLength: 200,
+                    style: TextStyle(fontSize: 12),
                   ),
                 ],
               );
