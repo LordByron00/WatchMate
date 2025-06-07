@@ -51,21 +51,16 @@ class _ChatScreenState extends State<Chat> {
 
     Map<String, dynamic>? response = await userService.fetchDPbyID(fbid);
 
-    if (response != null) {
-      setState(() {
-        sender
-            ? senderImgUrl = response['file_url']
-            : receiverImgUrl = response['file_url'];
-      });
-      // Handle the retrieved data
-      print('ID: ${response['fbid']}');
-      print('Name: ${response['name']}');
-      print('file_url: ${response['file_url']}');
-    } else {
-      setState(() {
-        sender ? senderImgUrl = 'not found' : receiverImgUrl = 'not found';
-      });
-    }
+    setState(() {
+      sender
+          ? senderImgUrl = response!['file_url']
+          : receiverImgUrl = response!['file_url'];
+    });
+
+    // Handle the retrieved data
+    print('ID: ${response!['fbid']}');
+    print('Name: ${response['name']}');
+    print('file_url: ${response['file_url']}');
   }
 
   Future<void> createConvo() async {

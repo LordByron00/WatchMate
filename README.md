@@ -1,16 +1,17 @@
-# WatchMate
+🎬 WatchMate
+WatchMate is a media-based dating app built with Flutter and Firebase. It connects people through shared interests in movies, shows, and other media content — because sometimes, the best matches start with what you watch. 🎥❤️
 
-A new Flutter project.
+🔑 Features
+🔐 User authentication (Firebase)
 
-## Getting Started
+💕 Matchmaking based on media preferences
 
-This project is a starting point for a Flutter application.
+💬 Real-time chat and interaction
 
-A few resources to get you started if this is your first Flutter project:
+📱 Cross-platform support with Flutter
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+🛠 Tech Stack
+Frontend: Flutter (Dart)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Backend: Firebase Authentication, Firestore, Firebase Storage
+

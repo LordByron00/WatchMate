@@ -12,19 +12,15 @@ class MessageService {
     String? receiverId =
         await userService.getUserIdFromUsername(receiverUsername);
 
-    if (receiverId != null) {
-      String senderId =
-          FirebaseAuth.instance.currentUser!.uid; // Get current user's UID
+    String senderId =
+        FirebaseAuth.instance.currentUser!.uid; // Get current user's UID
 
-      // Create a message document in Firestore (example)
-      await _db.collection('conversations').add({
-        'sender_id': senderId,
-        'receiver_id': receiverId,
-        'message': message,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-    } else {
-      print('User with username $receiverUsername not found');
-    }
+    // Create a message document in Firestore (example)
+    await _db.collection('conversations').add({
+      'sender_id': senderId,
+      'receiver_id': receiverId,
+      'message': message,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
   }
 }
