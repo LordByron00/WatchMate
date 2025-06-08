@@ -11,32 +11,68 @@ WatchMate is a media-based dating app built with Flutter and Firebase. It connec
 Frontend: Flutter (Dart)
 Backend: Firebase Authentication, Firestore, Supabase storage
 
-AUTHENTICATION  
+  
+<p align="center">
+  AUTHENTICATION
+</p>
 <p align="center">
   <img src="/images/Login.png" width="300">
 </p>
+<p align="center">
+  <img src="/images/Registration.png" width="300">
+</p>
 
-<!-- ![LOGIN](/images/Login.png) -->
-![REGISTRATION](/images/Registration.png)
+  
+<p align="center">
+  HOMEPAGE
+</p>
+<p align="center">
+  <img src="/images/Homepage.png" width="300">
+</p>
+<p align="center">
+  <img src="/images//Movie%20details.png" width="300">
+</p>
+<p align="center">
+  <img src="/images/Reviews.png" width="300">
+</p>
+<p align="center">
+  <img src="/images/Rate.png" width="300">
+</p>
+<p align="center">
+  <img src="/images/Review.png" width="300">
+</p>
 
-HOMEPAGE  
-![WATCHMATE HOMEPAGE](/images/Homepage.png)
-![MOVIE DETAILS](/images//Movie%20details.png)
-![MOVIE REVIEWS](/images/Reviews.png)
-![MOVIE RATE BUBBLE](/images/Rate.png)
-![MOVIE ADD REVIEW](/images/Review.png)
+<p align="center">
+  MATCHES  
+</p>
+<p align="center">
+  <img src="/images/Match%20Favorite.jpg" width="300">
+</p>
+<p align="center">
+  <img src="/images/Match%20Reviews.jpg" width="300">
+</p>
 
-MATCHES  
-![MATCH FAVORITES](/images/Match%20Favorite.jpg)
-![MATCH REVIEWS](/images/Match%20Reviews.jpg)
+<p align="center">
+    MESSAGES 
+</p>
+<p align="center">
+  <img src="/images/Message%20list.png" width="300">
+</p>
+<p align="center">
+  <img src="/images/Chat.png" width="300">
+</p>
 
-MESSAGES 
-![MATCH LIST](/images/Message%20list.png)
-![CHAT FEATURE](/images/Chat.png)
+ 
+<p align="center">
+  PROFILE
+</p>
+<p align="center">
+  <img src="/images/Profile.jpg" width="300">
+</p>
+<p align="center">
+  <img src="/images/Profile%20setting.png" width="300">
+</p>
 
-PROFILE 
-![USER PROFILE](/images/Profile.jpg)
-![USER PROFILE SETTINGS](/images/Profile%20setting.png)
 
 
 
