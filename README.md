@@ -15,7 +15,7 @@ AUTHENTICATION
 ![LOGIN](/images/Login.png)
 ![REGISTRATION](/images/Registration.png)
 
-HOME PAGE  
+HOMEPAGE  
 ![WATCHMATE HOMEPAGE](/images/Homepage.png)
 ![MOVIE DETAILS](/images//Movie%20details.png)
 ![MOVIE REVIEWS](/images/Reviews.png)
@@ -26,7 +26,11 @@ MATCHES
 ![MATCH FAVORITES](/images/Match%20Favorite.jpg)
 ![MATCH REVIEWS](/images/Match%20Reviews.jpg)
 
-PROFILE PAGE
+MESSAGES
+![MATCH LIST](/images/Message%20list.png)
+![CHAT FEATURE](/images/Chat.png)
+
+PROFILE 
 ![USER PROFILE](/images/Profile.jpg)
 ![USER PROFILE SETTINGS](/images/Profile%20setting.png)
 
