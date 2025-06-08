@@ -12,7 +12,11 @@ Frontend: Flutter (Dart)
 Backend: Firebase Authentication, Firestore, Supabase storage
 
 AUTHENTICATION  
-![LOGIN](/images/Login.png)
+<p align="center">
+  <img src="/images/Login.png" width="300">
+</p>
+
+<!-- ![LOGIN](/images/Login.png) -->
 ![REGISTRATION](/images/Registration.png)
 
 HOMEPAGE  
@@ -22,11 +26,11 @@ HOMEPAGE
 ![MOVIE RATE BUBBLE](/images/Rate.png)
 ![MOVIE ADD REVIEW](/images/Review.png)
 
-MATCHES
+MATCHES  
 ![MATCH FAVORITES](/images/Match%20Favorite.jpg)
 ![MATCH REVIEWS](/images/Match%20Reviews.jpg)
 
-MESSAGES
+MESSAGES 
 ![MATCH LIST](/images/Message%20list.png)
 ![CHAT FEATURE](/images/Chat.png)
 
